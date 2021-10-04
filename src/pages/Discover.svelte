@@ -261,12 +261,7 @@
 </div>
 
 <style>
-  .ba {
-    text-align: center;
-    font-size: 12px;
-    color: #888;
-    padding: 20px;
-  }
+
   .songer-box {
     display: grid;
     justify-content: space-between;
