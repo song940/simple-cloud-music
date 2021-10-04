@@ -22,6 +22,7 @@
   let password_phone = '';
   let password_email = '';
   let code_phone = '';
+  let email_phone = '';
   let type = 'phone';
   $: phoneType = 'code'; //code--短信验证，pwd--密码验证
   let tiptext =

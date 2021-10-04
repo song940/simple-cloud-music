@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import { isLoadingStore } from '../store/common';
 import { Alert } from './common';
 
-let baseURL = ENV === 'development' ? 'http://xx.xx.xx.xx:3000/' : '/api/';
+let baseURL = 'https://netease-cloud-music-api-eight-lime.vercel.app/'
 
 const service = axios.create({
   baseURL,

@@ -18,7 +18,7 @@
     },
     {
       icon: AccountCircleFill,
-      text: '我',
+      text: '我的',
       path: '/mine',
     },
   ];

@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import replace from 'rollup-plugin-replace';
+import json from '@rollup/plugin-json';
 import md from 'rollup-plugin-md';
 import fs from 'fs';
 
@@ -12,8 +13,8 @@ const production = !process.env.ROLLUP_WATCH;
 function insertHashToIndex() {
   return {
     writeBundle() {
-      const stats = fs.statSync('html/build/bundle.js');
-      let indexHtml = fs.readFileSync(`html/index.html`, 'utf8');
+      const stats = fs.statSync('public/build/bundle.js');
+      let indexHtml = fs.readFileSync(`public/index.html`, 'utf8');
       // let swJs = fs.readFileSync(`html/service-worker.js`, "utf8");
       indexHtml = indexHtml
         .replace(/\/global\.css(\?_=[0-9\.]+)?/, '/global.css?_=' + stats.ctimeMs)
@@ -43,7 +44,7 @@ export default {
     sourcemap: !production,
     format: 'iife',
     name: 'app',
-    dir: production ? 'html/build/' : 'public/build/',
+    dir: 'public/build/',
     entryFileNames: 'bundle.js',
     // entryFileNames: production ? `bundle?+_[hash].js` : "bundle.js",
   },
@@ -57,7 +58,8 @@ export default {
         css.write('bundle.css', !production);
       },
     }),
-    production && insertHashToIndex(),
+    // production && insertHashToIndex(),
+    json(),
     replace({
       ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
     }),

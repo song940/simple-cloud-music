@@ -3,7 +3,6 @@
   "short_name": "简易云音乐",
   "description": "简易云音乐，让听音乐简单一点！",
   "orientation": "portrait",
-  "lang": "zh",
   "icons": [
     {
       "src": "/images/icons/icon-128x128.png",

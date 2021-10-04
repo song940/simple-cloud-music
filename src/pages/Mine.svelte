@@ -385,16 +385,6 @@
           立即登录
         </Button>
       </div>
-      <div style="margin-top: 40px;">
-        <Button
-          on:BtnClick={() => {
-            isHomePageStore.set(false);
-            push('/about');
-          }}
-        >
-          关于
-        </Button>
-      </div>
     </div>
   {/if}
 </div>

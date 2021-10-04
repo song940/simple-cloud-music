@@ -29,6 +29,7 @@
     "svelte-stack-router": "^2.4.4"
   },
   "dependencies": {
+    "@rollup/plugin-json": "^4.1.0",
     "axios": "^0.21.1",
     "is-standalone": "^1.0.2",
     "ora": "^5.4.1",
