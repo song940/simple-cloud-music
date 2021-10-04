@@ -28,3 +28,5 @@ export const currentDetailSongerIdStore = writable(0);
 export const coverImgUrlStore = writable('');
 //是否显示热评入口
 export const isShowCommentStore = writable(localStorage.getItem('isShowComment') === '0' ? '0' : '1');
+
+export const defaultCover = `/images/defaultCover.png`;
