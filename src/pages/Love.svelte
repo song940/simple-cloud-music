@@ -9,7 +9,7 @@
   import SongList from '../components/SongList.svelte';
   import Songer from '../components/Singer.svelte';
 
-  import { isLoginStore } from '../store/common';
+  import { isLoginStore, defaultCover } from '../store/common';
   import {
     playIsMaxStore,
     playStatusStore,
@@ -267,7 +267,7 @@
             class="today-img-box"
             style="width: {localStorage.getItem('fullWidth') - 40}px;background-image:url({$todayListStore.length !== 0
               ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') + '?param=800y800'
-              : 'images/defaultCover.png'})"
+              : defaultCover})"
           />
           <div class="day-box">
             <div class="day">今日推荐</div>
@@ -386,7 +386,7 @@
       <TopTitle title="推荐" desc="专属推荐" topTitleRightList={{ type: 'text', text: '' }} />
       <div class="noLogin">
         <div>
-          <img class="login-img" src="/images/login.png" alt="" />
+          <img class="login-img" src="images/login.png" alt="" />
         </div>
         <div class="tip">推荐功能需要登录</div>
         <div class="login-btn">

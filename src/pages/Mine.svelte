@@ -371,7 +371,7 @@
   {:else}
     <div class="noLogin">
       <div>
-        <img class="login-img" src="/images/login.png" alt="" />
+        <img class="login-img" src="images/login.png" alt="" />
       </div>
       <div class="tip">账号信息需要登录</div>
       <div class="login-btn">
