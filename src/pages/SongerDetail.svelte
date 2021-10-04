@@ -7,7 +7,7 @@
   import { NavBar, Title, Button } from '../components/base';
   import SongList from '../components/SongList.svelte';
 
-  import { defaultResumableStore, isLoginStore, currentDetailSongerIdStore, coverImgUrlStore } from '../store/common';
+  import { defaultResumableStore, isLoginStore, currentDetailSongerIdStore, coverImgUrlStore, defaultCover } from '../store/common';
   import {
     currentSongStore,
     playStatusStore,
@@ -21,7 +21,7 @@
   import { getSongerDetail, getSongerTop, followAArtist } from '../api/songer';
   import { getSongUrl } from '../api/song';
 
-  $: coverImgUrl = '/images/defaultCover.png';
+  $: coverImgUrl = defaultCover;
   $: name = '--';
   $: description = '暂无描述';
   $: mvSize = 0;

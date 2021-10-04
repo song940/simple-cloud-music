@@ -8,7 +8,7 @@
   import SongList from '../components/SongList.svelte';
 
   import { playListIdStore, playListDetailStore } from '../store/playList';
-  import { isLoginStore, isLoadingStore, defaultResumableStore } from '../store/common';
+  import { isLoginStore, isLoadingStore, defaultResumableStore, defaultCover } from '../store/common';
   import {
     currentSongStore,
     playStatusStore,
@@ -30,12 +30,12 @@
   $: description = '';
   $: alphaNumber = 0; //NavBar透明度的值
   $: songList = [];
-  $: coverImgUrl = '/images/defaultCover.png';
+  $: coverImgUrl = defaultCover;
   $: name = '歌单名称';
   $: updateTime = new Date().getTime();
   $: creator = {
     nickname: '创建者',
-    avatarUrl: '/images/defaultCover.png',
+    avatarUrl: defaultCover,
     id: 0,
   };
   $: collect = false;

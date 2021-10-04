@@ -267,7 +267,7 @@
             class="today-img-box"
             style="width: {localStorage.getItem('fullWidth') - 40}px;background-image:url({$todayListStore.length !== 0
               ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') + '?param=800y800'
-              : '/images/defaultCover.png'})"
+              : 'images/defaultCover.png'})"
           />
           <div class="day-box">
             <div class="day">今日推荐</div>

@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { defaultCover } from '../store/common';
 
 //播放器播放与暂停状态。true/false
 export const playStatusStore = writable(false);
@@ -11,13 +12,13 @@ export const currentSongStore = writable(
   JSON.parse(localStorage.getItem('currentSong'))
     ? JSON.parse(localStorage.getItem('currentSong'))
     : {
-        name: '简易云音乐',
-        al: {
-          picUrl: '/images/defaultCover.png',
-        },
-        url: 'https://m8.music.126.net/20210907010112/541ee038536db12045e4a99d565becd8/ymusic/5614/195d/ad51/33fff191fffc2fd5da6c94d71e7777ef.mp3',
-        ar: [{ name: '简易云音乐' }],
-      }
+      name: '简易云音乐',
+      al: {
+        picUrl: defaultCover,
+      },
+      url: 'https://m8.music.126.net/20210907010112/541ee038536db12045e4a99d565becd8/ymusic/5614/195d/ad51/33fff191fffc2fd5da6c94d71e7777ef.mp3',
+      ar: [{ name: '简易云音乐' }],
+    }
 );
 //下一曲播放歌曲信息
 export const nextSongStore = writable({});
@@ -28,13 +29,13 @@ export const currentPlayListStore = writable([
   JSON.parse(localStorage.getItem('currentSong'))
     ? JSON.parse(localStorage.getItem('currentSong'))
     : {
-        name: '简易云音乐',
-        al: {
-          picUrl: '/images/defaultCover.png',
-        },
-        url: 'https://m8.music.126.net/20210907010112/541ee038536db12045e4a99d565becd8/ymusic/5614/195d/ad51/33fff191fffc2fd5da6c94d71e7777ef.mp3',
-        ar: [{ name: '简易云音乐' }],
+      name: '简易云音乐',
+      al: {
+        picUrl: defaultCover,
       },
+      url: 'https://m8.music.126.net/20210907010112/541ee038536db12045e4a99d565becd8/ymusic/5614/195d/ad51/33fff191fffc2fd5da6c94d71e7777ef.mp3',
+      ar: [{ name: '简易云音乐' }],
+    },
 ]);
 //是否在加载歌曲
 export const isLoadingSongStore = writable(false);
@@ -56,10 +57,10 @@ export const currentLyricStore = writable(
   JSON.parse(localStorage.getItem('currentLyric'))
     ? JSON.parse(localStorage.getItem('currentLyric'))
     : {
-        songId: '',
-        lyric: '',
-        tlyric: '',
-      }
+      songId: '',
+      lyric: '',
+      tlyric: '',
+    }
 );
 //播放器主要区域显示的内容，cover--歌曲封面；list--播放列表；lyric--歌词
 export const mainCoverTypeStore = writable('cover');
