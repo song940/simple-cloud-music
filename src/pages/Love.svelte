@@ -296,7 +296,8 @@
         <div class="today" on:click={playTodayFun} bind:this={todayDom}>
           <div
             class="today-img-box"
-            style="width: {fullWidth() - 40}px;background-image:url({$todayListStore.length !== 0
+            style="width: {fullWidth() -
+              40}px;background-image:url({$todayListStore.length !== 0
               ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') +
                 '?param=800y800'
               : defaultCover})"
