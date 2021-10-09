@@ -44,8 +44,7 @@
     getSimiSong,
   } from "../api/song";
   import { similarArtists, getSongerDetail } from "../api/songer";
-
-  import { songerListToStr, Toast, ripple } from "../utils/common";
+  import { songerListToStr, Toast, ripple, fullWidth } from "../utils/common";
 
   let dailyRecommendPlayList = []; //每日歌单推荐
   let randomLoveSong = {}; //随机一个喜欢歌曲
@@ -76,7 +75,8 @@
       dailyRecommendPlaylistFun();
       dailyRecommendTracksFun();
       personalFMFun(true);
-      let useLoveSongIds = JSON.parse(localStorage.getItem("useLoveSongIds")) || [];
+      let useLoveSongIds =
+        JSON.parse(localStorage.getItem("useLoveSongIds")) || [];
       let randomIndex = Math.floor(Math.random() * useLoveSongIds.length);
       getSongDetailFun(useLoveSongIds[randomIndex]);
       getSimiPlaylistFun(useLoveSongIds[randomIndex]);
@@ -296,8 +296,7 @@
         <div class="today" on:click={playTodayFun} bind:this={todayDom}>
           <div
             class="today-img-box"
-            style="width: {localStorage.getItem('fullWidth') -
-              40}px;background-image:url({$todayListStore.length !== 0
+            style="width: {fullWidth() - 40}px;background-image:url({$todayListStore.length !== 0
               ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') +
                 '?param=800y800'
               : defaultCover})"

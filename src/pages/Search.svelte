@@ -10,7 +10,7 @@
   import { search } from '../api/others';
   import { getSongDetail } from '../api/song';
 
-  import { ripple } from '../utils/common';
+  import { ripple, fullWidth } from '../utils/common';
 
   let inputDom;
   let keywords = '';
@@ -185,7 +185,7 @@
       </div>
     {/each}
   </div>
-  <div class="active-line" style="left: {20 + ((localStorage.getItem('fullWidth') - 40) / 4) * active}px;" />
+  <div class="active-line" style="left: {20 + ((fullWidth() - 40) / 4) * active}px;" />
   {#if isShowResult}
     <div class="result-box">
       <!-- 综合 -->

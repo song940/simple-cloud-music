@@ -64,8 +64,10 @@
     setCookies(res.cookie);
     isLoginStore.set(true);
     userInfoStore.set(res);
+    localStorage.setItem("isLogin", true);
     localStorage.setItem("userInfo", JSON.stringify(res));
-    userPlaylistFun(res);
+    setTimeout(() => pop(), 100);
+    // userPlaylistFun(res);
   }
   //手机号登录
   async function doPhoneLogin() {

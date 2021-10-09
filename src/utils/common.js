@@ -19,6 +19,9 @@ export function getCookies() {
   return document.cookie;
 }
 
+export const fullWidth = () =>
+  localStorage.getItem('fullWidth');
+
 //时间戳转为时间
 //format支持五种格式，'yyyy年MM月dd日'、'yyyyMMdd'、'yyyy-MM-dd'、'yyyy/MM/dd'、'yyyy-MM-dd hh:mm:ss'
 export function formatTime(time, format = 'yyyy年MM月dd日') {

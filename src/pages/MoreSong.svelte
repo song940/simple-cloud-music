@@ -18,7 +18,7 @@
   import { getAllSongs } from '../api/songer';
   import { getSongUrl } from '../api/song';
 
-  import { parseQuery, Toast } from '../utils/common';
+  import { parseQuery, Toast, fullWidth } from '../utils/common';
 
   $: songList = [];
   $: hasMore = true;
@@ -133,7 +133,7 @@
       </div>
     {/each}
   </div>
-  <div class="active-line" style="left: {20 + ((localStorage.getItem('fullWidth') - 40) / 2) * active}px;" />
+  <div class="active-line" style="left: {20 + ((fullWidth() - 40) / 2) * active}px;" />
   <div style="margin-top:40px">
     <Pagination
       bottomHeight={70}

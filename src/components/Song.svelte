@@ -7,7 +7,7 @@
   import { userLikeSongIdsStore } from '../store/user';
   import { currentSongStore, playStatusStore } from '../store/play';
 
-  import { ripple, songerListToStr, Toast } from '../utils/common';
+  import { ripple, songerListToStr, fullWidth } from '../utils/common';
 
   const dispatch = createEventDispatcher();
 
@@ -70,7 +70,7 @@
       </div>
     {/if}
   </div>
-  <div class="song-info" style="max-width:{localStorage.getItem('fullWidth') - 72}px;">
+  <div class="song-info" style="max-width:{fullWidth() - 72}px;">
     <div class="song-name">
       {song.name}
       <span class="alia">
