@@ -11,7 +11,6 @@
   import { Button, NavBar } from "../components/base";
   import SongList from "../components/SongList.svelte";
 
-  import { playListIdStore } from "../store/playList";
   import {
     isLoginStore,
     isLoadingStore,
@@ -34,8 +33,10 @@
 
   import { formatTime, Toast, cutArray, parseQuery } from "../utils/common";
 
+  const { id } = parseQuery($search);
+
   let coverDom;
-  $: playlistId = null;
+  $: playlistId = id;
   $: collect = false;
   $: title = "歌单详情";
   $: description = "";
@@ -50,9 +51,6 @@
     id: 0,
   };
 
-  const { id } = parseQuery($search);
-  playlistId = id;
-
   onMount(() => {
     getPlaylistDetailFun();
   });
@@ -60,6 +58,8 @@
   onResume(() => {
     if (!$defaultResumableStore) {
       songList = [];
+      const { id } = parseQuery($search);
+      playlistId = id;
       getPlaylistDetailFun();
     }
   });

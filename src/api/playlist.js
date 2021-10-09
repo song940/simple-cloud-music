@@ -185,12 +185,12 @@ export function toplists() {
  * @param {number} params.id
  */
 export function subscribePlaylist(id, isSubscribe) {
-  params.timestamp = new Date().getTime();
   return request({
     url: '/playlist/subscribe',
     method: 'post',
     params: {
-      id, t: isSubscribe ? 1 : 2
+      id, t: isSubscribe ? 1 : 2,
+      timestamp: new Date().getTime(),
     },
     // needCookie: false,
   });

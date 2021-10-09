@@ -3,7 +3,7 @@
   import { ThumbUpFill, Compass3Fill, AccountCircleFill } from 'svelte-remixicon';
 
   import { ripple } from '../../utils/common';
-  import { isHomePageStore, homeActiveStore } from '../../store/common';
+  import { isHomePageStore, tabbarActive } from '../../store/common';
 
   const navDatas = [
     {
@@ -36,9 +36,9 @@
   {#each navDatas as navData, i}
     <div
       class="nav-item"
-      class:active={$homeActiveStore === i}
+      class:active={$tabbarActive === i}
       on:click={() => {
-        homeActiveStore.set(i);
+        tabbarActive.set(i);
       }}
       bind:this={tabDoms[i]}
     >

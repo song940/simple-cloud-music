@@ -13,14 +13,14 @@
   let useLoveSongerIds = JSON.parse(localStorage.getItem('useLoveSongerIds')) || [];
   let songerDom;
   onMount(() => {
-    if (songerDom) {
-      ripple(songerDom);
-    }
+    // if (songerDom) {
+    //   ripple(songerDom);
+    // }
   });
   function toSongerPageFun() {
     isHomePageStore.set(false);
     currentDetailSongerIdStore.set(songer.id);
-    push('/songerDetail');
+    push(`/artist?id=${songer.id}`);
   }
 </script>
 

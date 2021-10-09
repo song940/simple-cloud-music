@@ -6,7 +6,7 @@ import LoveListDetail from './pages/LoveListDetail.svelte';
 import MyAllPlayList from './pages/MyAllPlayList.svelte';
 import Setting from './pages/Setting.svelte';
 import Search from './pages/Search.svelte';
-import SongerDetail from './pages/SongerDetail.svelte';
+import Artist from './pages/Artist.svelte';
 import BrSelect from './pages/BrSelect.svelte';
 import MusicComment from './pages/MusicComment.svelte';
 import AllCollectSongers from './pages/AllCollectSongers.svelte';
@@ -25,9 +25,9 @@ const routes = {
   '/login': Login,
   '/setting': Setting,
   '/search': Search,
-  '/songerDetail': SongerDetail,
+  '/artist': Artist,
   '/brSelect': BrSelect,
-  '/musicComment': MusicComment,
+  '/comments': MusicComment,
   '/allCollectSongers': AllCollectSongers,
   '/songerDesc': SongerDesc,
   '/moreSonger': MoreSonger,

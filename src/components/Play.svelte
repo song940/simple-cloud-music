@@ -1,6 +1,6 @@
 <script>
-  import { onMount } from 'svelte';
-  import { push, location } from 'svelte-stack-router';
+  import { onMount } from "svelte";
+  import { push, location } from "svelte-stack-router";
   import {
     SkipBackFill,
     SkipForwardFill,
@@ -19,13 +19,19 @@
     PlayListFill,
     SortDesc,
     HeartPulseLine,
-  } from 'svelte-remixicon';
+  } from "svelte-remixicon";
 
-  import { Picker, Progress } from '../components/base';
-  import Lyric from '../components/Lyric.svelte';
-  import SongList from '../components/SongList.svelte';
+  import { Picker, Progress } from "../components/base";
+  import Lyric from "../components/Lyric.svelte";
+  import SongList from "../components/SongList.svelte";
 
-  import { getSongUrl, personalFM, likeThisSong, getLyric, fmTrash } from '../api/song';
+  import {
+    getSongUrl,
+    personalFM,
+    likeThisSong,
+    getLyric,
+    fmTrash,
+  } from "../api/song";
 
   import {
     playStatusStore,
@@ -41,13 +47,23 @@
     mainCoverTypeStore,
     playRepeatModelStore,
     currentSongQualityStore,
-  } from '../store/play';
-  import { isLoginStore, isHomePageStore, currentDetailSongerIdStore, isShowCommentStore } from '../store/common';
-  import { userLikeSongIdsStore } from '../store/user';
+  } from "../store/play";
+  import {
+    isLoginStore,
+    isHomePageStore,
+    currentDetailSongerIdStore,
+    isShowCommentStore,
+  } from "../store/common";
+  import { userLikeSongIdsStore } from "../store/user";
 
-  import { timeToMinute, songerListToStr, Toast, ripple } from '../utils/common';
+  import {
+    timeToMinute,
+    songerListToStr,
+    Toast,
+    ripple,
+  } from "../utils/common";
 
-  export let currentTime = '0:00'; //当前播放时间
+  export let currentTime = "0:00"; //当前播放时间
   export let currentTimeLong = 0; //进度条长度
   export let endTime = 0; //结束时间
 
@@ -70,7 +86,9 @@
   let touchEndTime = 0; //滑动结束时间戳
   let playListDom;
 
-  $: isLikeCurrentSong = $isLoginStore ? $userLikeSongIdsStore.includes($currentSongStore.id) : false; //是否喜欢当前歌曲
+  $: isLikeCurrentSong = $isLoginStore
+    ? $userLikeSongIdsStore.includes($currentSongStore.id)
+    : false; //是否喜欢当前歌曲
   $: likeLoading = false; //优化点击红心请求时候loading效果
   $: noLikeLoading = false; //优化FM点击不喜欢红心请求时候loading效果
   $: lyricLoading = false; //优化点击歌词请求时候loading效果
@@ -78,9 +96,9 @@
   $: songers = $currentSongStore.ar;
 
   onMount(() => {
-    maxPlayToTopStore.set(window.screen.height + 'px');
+    maxPlayToTopStore.set(window.screen.height + "px");
     playIsMaxStore.set(false);
-    mainCoverTypeStore.set('cover');
+    mainCoverTypeStore.set("cover");
     if (lyricDom) ripple(lyricDom);
     if (listDom) ripple(listDom);
     if (loveDom) ripple(loveDom);
@@ -94,44 +112,54 @@
   });
   //接收子组件（Progress）发送来的事件（setCurrent），获取当前进度点的值（event.detail.current）。
   function getCurrent(event) {
-    window.audioDOM.currentTime = (event.detail.current / 100) * window.audioDOM.duration;
+    window.audioDOM.currentTime =
+      (event.detail.current / 100) * window.audioDOM.duration;
     currentTime = timeToMinute(window.audioDOM.currentTime);
-    currentTimeLong = (window.audioDOM.currentTime / window.audioDOM.duration) * 100;
-    endTime = '-' + timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
+    currentTimeLong =
+      (window.audioDOM.currentTime / window.audioDOM.duration) * 100;
+    endTime =
+      "-" +
+      timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
     window.audioDOM.play();
     playStatusStore.set(true);
   }
   //接收子组件（Progress）发送来的事件（setTimeCurrent），获取当前进度时间点的值（event.detail.timeCurrent ）。
   function getTimeCurrent(event) {
-    window.audioDOM.currentTime = (event.detail.timeCurrent / 100) * window.audioDOM.duration;
+    window.audioDOM.currentTime =
+      (event.detail.timeCurrent / 100) * window.audioDOM.duration;
     currentTime = timeToMinute(window.audioDOM.currentTime);
-    currentTimeLong = (window.audioDOM.currentTime / window.audioDOM.duration) * 100;
-    endTime = '-' + timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
+    currentTimeLong =
+      (window.audioDOM.currentTime / window.audioDOM.duration) * 100;
+    endTime =
+      "-" +
+      timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
   }
   function handleDown() {
-    maxPlayToTopStore.set(window.screen.height + 'px');
+    maxPlayToTopStore.set(window.screen.height + "px");
     playIsMaxStore.set(false);
-    mainCoverTypeStore.set('cover');
+    mainCoverTypeStore.set("cover");
   }
   //切换下一首
   function playNextFun() {
     if ($isFMPlayStore) {
       //正在私人FM
-      getSongUrlFun($FMPlayNextStore, 'next');
-      mainCoverTypeStore.set('cover');
+      getSongUrlFun($FMPlayNextStore, "next");
+      mainCoverTypeStore.set("cover");
     } else {
       if ($currentSongIndexStore === $currentPlayListStore.length - 1) {
-        Toast('已经是最后一首了');
+        Toast("已经是最后一首了");
       } else {
-        if ($mainCoverTypeStore === 'lyric') mainCoverTypeStore.set('cover');
+        if ($mainCoverTypeStore === "lyric") mainCoverTypeStore.set("cover");
         //随机模式
-        if ($playRepeatModelStore === 'shuffle') {
+        if ($playRepeatModelStore === "shuffle") {
           // Math.floor(Math.random() * 21);
-          let index = Math.floor(Math.random() * ($currentPlayListStore.length - 1));
-          getSongUrlFun($currentPlayListStore[index], 'shuffle', index);
+          let index = Math.floor(
+            Math.random() * ($currentPlayListStore.length - 1)
+          );
+          getSongUrlFun($currentPlayListStore[index], "shuffle", index);
         } else {
           currentSongIndexStore.set($currentSongIndexStore + 1);
-          getSongUrlFun($currentPlayListStore[$currentSongIndexStore], 'next');
+          getSongUrlFun($currentPlayListStore[$currentSongIndexStore], "next");
         }
       }
     }
@@ -139,10 +167,10 @@
   //切换上一首
   function playPreFun() {
     if ($currentSongIndexStore === 0) {
-      Toast('已经是第一首了');
+      Toast("已经是第一首了");
     } else {
-      if ($mainCoverTypeStore === 'lyric') mainCoverTypeStore.set('cover');
-      getSongUrlFun($currentPlayListStore[$currentSongIndexStore - 1], 'pre');
+      if ($mainCoverTypeStore === "lyric") mainCoverTypeStore.set("cover");
+      getSongUrlFun($currentPlayListStore[$currentSongIndexStore - 1], "pre");
     }
   }
   //获取歌单url
@@ -150,16 +178,16 @@
     const res = await getSongUrl(song.id);
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, 'https:');
+        song.url = res.data[0].url.replace(/^http:/, "https:");
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
-          currentSongQualityStore.set('试听');
-        } else if (res.data[0].type === 'flac') {
-          currentSongQualityStore.set('FLAC');
+          currentSongQualityStore.set("试听");
+        } else if (res.data[0].type === "flac") {
+          currentSongQualityStore.set("FLAC");
         } else {
           currentSongQualityStore.set(res.data[0].br);
         }
         currentSongStore.set(song);
-        localStorage.setItem('currentSong', JSON.stringify(song));
+        localStorage.setItem("currentSong", JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
         playStatusStore.set(true);
@@ -170,14 +198,14 @@
           currentSongStore.set(song);
           currentPlayListStore.set([$FMPlayStore]);
           currentSongIndexStore.set(0);
-          localStorage.setItem('currentSong', JSON.stringify(song));
+          localStorage.setItem("currentSong", JSON.stringify(song));
         } else {
           //切换下一首和上一首之后，修改播放歌曲在播放列表中的位置
-          if (type === 'next') {
+          if (type === "next") {
             if ($currentSongIndexStore !== $currentPlayListStore.length - 1) {
               getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
             }
-          } else if (type === 'shuffle') {
+          } else if (type === "shuffle") {
             //随机
             if ($currentSongIndexStore !== $currentPlayListStore.length - 1) {
               currentSongIndexStore.set(index);
@@ -188,7 +216,10 @@
           }
         }
       } else {
-        Toast(`😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`, 2000);
+        Toast(
+          `😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`,
+          2000
+        );
       }
     }
   }
@@ -212,7 +243,7 @@
         like: !isLikeCurrentSong,
       });
       if (res.code === 200) {
-        const ids = JSON.parse(localStorage.getItem('useLoveSongIds'));
+        const ids = JSON.parse(localStorage.getItem("useLoveSongIds"));
         if (isLikeCurrentSong) {
           let i = ids.indexOf($currentSongStore.id);
           ids.splice(i, 1);
@@ -221,12 +252,12 @@
         }
         likeLoading = false;
         userLikeSongIdsStore.set(JSON.stringify(ids));
-        localStorage.setItem('useLoveSongIds', JSON.stringify(ids));
+        localStorage.setItem("useLoveSongIds", JSON.stringify(ids));
       } else {
         likeLoading = false;
       }
     } else {
-      Toast('当前未登录');
+      Toast("当前未登录");
     }
   }
   //FM 不喜欢
@@ -240,30 +271,30 @@
   }
   //切换歌词显示
   function changeLyricFun() {
-    if ($mainCoverTypeStore !== 'lyric') {
+    if ($mainCoverTypeStore !== "lyric") {
       getlyricFun();
     } else {
-      mainCoverTypeStore.set('cover');
+      mainCoverTypeStore.set("cover");
     }
   }
   //请求歌词
   async function getlyricFun() {
     if ($currentLyricStore.songId === $currentSongStore.id) {
-      mainCoverTypeStore.set('lyric');
+      mainCoverTypeStore.set("lyric");
     } else {
       lyricLoading = true;
       const res = await getLyric($currentSongStore.id);
       if (res.code === 200) {
         lyricLoading = false;
-        if (res.nolyric || res.needDesc || res.lrc.lyric === '') {
-          Toast('🙈🙈么有歌词哦!!🙈🙈');
+        if (res.nolyric || res.needDesc || res.lrc.lyric === "") {
+          Toast("🙈🙈么有歌词哦!!🙈🙈");
           currentLyricStore.set({
             songId: null,
             lyric: null,
             tlyric: null,
           });
           localStorage.setItem(
-            'currentLyric',
+            "currentLyric",
             JSON.stringify({
               songId: null,
               lyric: null,
@@ -277,14 +308,14 @@
             tlyric: res.tlyric.lyric,
           });
           localStorage.setItem(
-            'currentLyric',
+            "currentLyric",
             JSON.stringify({
               songId: $currentSongStore.id,
               lyric: res.lrc.lyric,
               tlyric: res.tlyric.lyric,
             })
           );
-          mainCoverTypeStore.set('lyric');
+          mainCoverTypeStore.set("lyric");
         }
       } else {
         lyricLoading = false;
@@ -293,21 +324,21 @@
   }
   //切换播放列表显示
   function changeListFun() {
-    if ($mainCoverTypeStore !== 'list') {
+    if ($mainCoverTypeStore !== "list") {
       if ($currentSongIndexStore > 200) {
         let r = confirm(
-          '当前播放歌曲在播放列表中位置超过 200，显示播放列表将自动滚动至当前歌曲，极短时间内渲染大量页面会严重消耗设备性能😈😈。可以考虑到歌单详情页（已做了懒加载）查看列表哦😅。🤔确定显示播放列表吗🤔？'
+          "当前播放歌曲在播放列表中位置超过 200，显示播放列表将自动滚动至当前歌曲，极短时间内渲染大量页面会严重消耗设备性能😈😈。可以考虑到歌单详情页（已做了懒加载）查看列表哦😅。🤔确定显示播放列表吗🤔？"
         );
         if (r === true) {
           if ($currentPlayListStore.length > 200) {
-            Toast('列表太长，等我加载...🥱🥱', 1000, () => {
-              mainCoverTypeStore.set('list');
+            Toast("列表太长，等我加载...🥱🥱", 1000, () => {
+              mainCoverTypeStore.set("list");
               setTimeout(() => {
                 playListDom.scrollTop = 60 * $currentSongIndexStore;
               }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
             });
           } else {
-            mainCoverTypeStore.set('list');
+            mainCoverTypeStore.set("list");
             setTimeout(() => {
               playListDom.scrollTop = 60 * $currentSongIndexStore;
             }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
@@ -315,49 +346,49 @@
         }
       } else {
         if ($currentPlayListStore.length > 200) {
-          Toast('列表太长，等我加载...🥱🥱', 1000, () => {
-            mainCoverTypeStore.set('list');
+          Toast("列表太长，等我加载...🥱🥱", 1000, () => {
+            mainCoverTypeStore.set("list");
             setTimeout(() => {
               playListDom.scrollTop = 60 * $currentSongIndexStore;
             }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
           });
         } else {
-          mainCoverTypeStore.set('list');
+          mainCoverTypeStore.set("list");
           setTimeout(() => {
             playListDom.scrollTop = 60 * $currentSongIndexStore;
           }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
         }
       }
     } else {
-      mainCoverTypeStore.set('cover');
+      mainCoverTypeStore.set("cover");
     }
   }
   // 切换播放循环模式
   function changeRrpeatFun(e) {
-    if ($playRepeatModelStore === 'heart') {
-      Toast('心动模式无需切换');
+    if ($playRepeatModelStore === "heart") {
+      Toast("心动模式无需切换");
     } else {
-      if ($playRepeatModelStore === 'repeat') {
-        playRepeatModelStore.set('shuffle');
-      } else if ($playRepeatModelStore === 'shuffle') {
-        playRepeatModelStore.set('repeatOnce');
+      if ($playRepeatModelStore === "repeat") {
+        playRepeatModelStore.set("shuffle");
+      } else if ($playRepeatModelStore === "shuffle") {
+        playRepeatModelStore.set("repeatOnce");
       } else {
-        playRepeatModelStore.set('repeat');
+        playRepeatModelStore.set("repeat");
       }
     }
   }
   //歌词区域点击
   function lyricClickFun() {
-    mainCoverTypeStore.set('cover');
+    mainCoverTypeStore.set("cover");
   }
   //去歌曲评论页面
   function toCommentFun() {
-    mainCoverTypeStore.set('cover');
-    maxPlayToTopStore.set(window.screen.height + 'px');
+    mainCoverTypeStore.set("cover");
+    maxPlayToTopStore.set(window.screen.height + "px");
     playIsMaxStore.set(false);
-    if (!($location === '/musicComment')) {
+    if (!($location === "/comments")) {
       if ($isHomePageStore) isHomePageStore.set(false);
-      push('/musicComment');
+      push("/comments");
     }
   }
   //滑动开始
@@ -365,7 +396,7 @@
     touchStartTime = new Date().getTime();
     touchStartY = e.changedTouches[0].clientY;
     touchMoveToTop = 0;
-    maxPlayToTopStore.set(touchMoveToTop + 'px');
+    maxPlayToTopStore.set(touchMoveToTop + "px");
   }
   //滑动结束
   function touchEnd(e) {
@@ -377,26 +408,32 @@
     // 速度小于0.3，不判断为最小化；0.3-0.8之间，如果移动距离超过250，最小化，不到250则不触发最小化。
     if (touchMoveToTop >= window.screen.height / 2) {
       //最小化
-      maxPlayToTopStore.set(window.screen.height + 'px');
+      maxPlayToTopStore.set(window.screen.height + "px");
       playIsMaxStore.set(false);
-      mainCoverTypeStore.set('cover');
+      mainCoverTypeStore.set("cover");
     } else if (touchEndY - touchStartY <= 100) {
-      maxPlayToTopStore.set('0px');
-    } else if (touchEndY - touchStartY > 100 && (touchEndY - touchStartY) / (touchEndTime - touchStartTime) >= 0.8) {
-      maxPlayToTopStore.set(window.screen.height + 'px');
+      maxPlayToTopStore.set("0px");
+    } else if (
+      touchEndY - touchStartY > 100 &&
+      (touchEndY - touchStartY) / (touchEndTime - touchStartTime) >= 0.8
+    ) {
+      maxPlayToTopStore.set(window.screen.height + "px");
       playIsMaxStore.set(false);
-      mainCoverTypeStore.set('cover');
-    } else if (touchEndY - touchStartY > 100 && (touchEndY - touchStartY) / (touchEndTime - touchStartTime) <= 0.3) {
-      maxPlayToTopStore.set('0px');
+      mainCoverTypeStore.set("cover");
+    } else if (
+      touchEndY - touchStartY > 100 &&
+      (touchEndY - touchStartY) / (touchEndTime - touchStartTime) <= 0.3
+    ) {
+      maxPlayToTopStore.set("0px");
     } else if (
       0.3 < (touchEndY - touchStartY) / (touchEndTime - touchStartTime) < 0.8 &&
       touchEndY - touchStartY > 250
     ) {
-      maxPlayToTopStore.set(window.screen.height + 'px');
+      maxPlayToTopStore.set(window.screen.height + "px");
       playIsMaxStore.set(false);
-      mainCoverTypeStore.set('cover');
+      mainCoverTypeStore.set("cover");
     } else {
-      maxPlayToTopStore.set('0px');
+      maxPlayToTopStore.set("0px");
     }
   }
   //滑动过程
@@ -404,9 +441,9 @@
     //阻止滑动时穿透问题
     e.preventDefault();
     e.stopPropagation();
-    if (parseFloat(playBgDom.style['top']) >= 0) {
+    if (parseFloat(playBgDom.style["top"]) >= 0) {
       touchMoveToTop = e.changedTouches[0].clientY - touchStartY;
-      maxPlayToTopStore.set(touchMoveToTop + 'px');
+      maxPlayToTopStore.set(touchMoveToTop + "px");
     }
   }
 </script>
@@ -414,8 +451,10 @@
 <div
   bind:this={playBgDom}
   class="play-bg"
-  style="background: url({$currentSongStore.al.picUrl.replace(/^http:/, 'https:') +
-    '?param=800y800'});top:{$maxPlayToTopStore}"
+  style="background: url({$currentSongStore.al.picUrl.replace(
+    /^http:/,
+    'https:'
+  ) + '?param=800y800'});top:{$maxPlayToTopStore}"
 >
   <div class="play">
     <div class="top-box">
@@ -428,7 +467,7 @@
       >
         <div class="down-line" />
       </div>
-      {#if $mainCoverTypeStore === 'cover'}
+      {#if $mainCoverTypeStore === "cover"}
         <div
           class="cover"
           on:click={handleDown}
@@ -439,18 +478,21 @@
         >
           <div>
             <img
-              style="width:{$playStatusStore ? '280px' : '240px'};height:{$playStatusStore ? '280px' : '240px'}"
-              src={$currentSongStore.al.picUrl.replace(/^http:/, 'https:') + '?param=800y800'}
+              style="width:{$playStatusStore
+                ? '280px'
+                : '240px'};height:{$playStatusStore ? '280px' : '240px'}"
+              src={$currentSongStore.al.picUrl.replace(/^http:/, "https:") +
+                "?param=800y800"}
               alt=""
               class="cover-img"
             />
           </div>
         </div>
-      {:else if $mainCoverTypeStore === 'lyric'}
+      {:else if $mainCoverTypeStore === "lyric"}
         <div class="lyric-cover" on:click={lyricClickFun}>
           <Lyric maxHeight="54vh" />
         </div>
-      {:else if !$isFMPlayStore && $mainCoverTypeStore === 'list'}
+      {:else if !$isFMPlayStore && $mainCoverTypeStore === "list"}
         <div class="song-list-box" bind:this={playListDom}>
           <SongList songList={$currentPlayListStore} />
         </div>
@@ -462,7 +504,9 @@
           <div class="name">
             {$currentSongStore.name}
             <span class="alia">
-              {$currentSongStore.alia && $currentSongStore.alia.length > 0 ? `(${$currentSongStore.alia[0]})` : ''}
+              {$currentSongStore.alia && $currentSongStore.alia.length > 0
+                ? `(${$currentSongStore.alia[0]})`
+                : ""}
             </span>
           </div>
           <div
@@ -470,12 +514,12 @@
             on:click={() => {
               if (songers.length === 1) {
                 if (songers[0].id != 0) {
-                  mainCoverTypeStore.set('cover');
-                  maxPlayToTopStore.set(window.screen.height + 'px');
+                  mainCoverTypeStore.set("cover");
+                  maxPlayToTopStore.set(window.screen.height + "px");
                   playIsMaxStore.set(false);
                   isHomePageStore.set(false);
                   currentDetailSongerIdStore.set(songers[0].id);
-                  push('/songerDetail');
+                  push(`/artist?id=${songers[0].id}`);
                 }
               } else {
                 PickerShow = true;
@@ -484,13 +528,19 @@
           >
             {songerListToStr($currentSongStore.ar)}
             <span>
-              {$currentSongStore.al.name === '' ? '' : `- ${$currentSongStore.al.name}`}
+              {$currentSongStore.al.name === ""
+                ? ""
+                : `- ${$currentSongStore.al.name}`}
             </span>
           </div>
         </div>
         <div class="progress">
           <div class="line">
-            <Progress on:setCurrent={getCurrent} on:setTimeCurrent={getTimeCurrent} current={currentTimeLong} />
+            <Progress
+              on:setCurrent={getCurrent}
+              on:setTimeCurrent={getTimeCurrent}
+              current={currentTimeLong}
+            />
           </div>
           <!-- 时间显示 -->
           <div class="time">
@@ -498,20 +548,25 @@
             <div
               class="time-item quality"
               on:click={() => {
-                mainCoverTypeStore.set('cover');
-                maxPlayToTopStore.set(window.screen.height + 'px');
+                mainCoverTypeStore.set("cover");
+                maxPlayToTopStore.set(window.screen.height + "px");
                 playIsMaxStore.set(false);
-                if (!($location === '/brSelect')) {
+                if (!($location === "/brSelect")) {
                   if ($isHomePageStore) isHomePageStore.set(false);
-                  push('/brSelect');
+                  push("/brSelect");
                 }
               }}
             >
               <span class="quality-span">
-                {$currentSongQualityStore === 'FLAC' || $currentSongQualityStore === '试听'
+                {$currentSongQualityStore === "FLAC" ||
+                $currentSongQualityStore === "试听"
                   ? $currentSongQualityStore
-                  : $currentSongQualityStore.toString().substring(0, $currentSongQualityStore.toString().length - 3) +
-                    'K'}
+                  : $currentSongQualityStore
+                      .toString()
+                      .substring(
+                        0,
+                        $currentSongQualityStore.toString().length - 3
+                      ) + "K"}
               </span>
             </div>
             <div class="time-item end">{endTime}</div>
@@ -520,12 +575,21 @@
       </div>
       <div class="tool">
         <!-- 歌词 -->
-        <div class="tool-item lyric" on:click={changeLyricFun} bind:this={lyricDom}>
+        <div
+          class="tool-item lyric"
+          on:click={changeLyricFun}
+          bind:this={lyricDom}
+        >
           {#if lyricLoading}
             <span style="line-height: 30px;">
-              <embed width="24" height="24" src="/images/Ripple.svg" type="image/svg+xml" />
+              <embed
+                width="24"
+                height="24"
+                src="/images/Ripple.svg"
+                type="image/svg+xml"
+              />
             </span>
-          {:else if $mainCoverTypeStore === 'lyric'}
+          {:else if $mainCoverTypeStore === "lyric"}
             <ChatQuoteFill size="20" style="vertical-align: middle" />
           {:else}
             <ChatQuoteLine size="20" style="vertical-align: middle" />
@@ -533,8 +597,12 @@
         </div>
         {#if !$isFMPlayStore}
           <!-- 播放列表 -->
-          <div class="tool-item list" on:click={changeListFun} bind:this={listDom}>
-            {#if $mainCoverTypeStore === 'list'}
+          <div
+            class="tool-item list"
+            on:click={changeListFun}
+            bind:this={listDom}
+          >
+            {#if $mainCoverTypeStore === "list"}
               <PlayListFill size="20" style="vertical-align: middle" />
             {:else}
               <PlayListLine size="20" style="vertical-align: middle" />
@@ -543,10 +611,19 @@
         {/if}
         {#if $isFMPlayStore && $isLoginStore}
           <!-- FM 不喜欢 -->
-          <div class="tool-item list" on:click={handleFMNoLoveFun} bind:this={disloveDom}>
+          <div
+            class="tool-item list"
+            on:click={handleFMNoLoveFun}
+            bind:this={disloveDom}
+          >
             {#if noLikeLoading}
               <span style="line-height: 30px;">
-                <embed width="24" height="24" src="/images/Ripple.svg" type="image/svg+xml" />
+                <embed
+                  width="24"
+                  height="24"
+                  src="/images/Ripple.svg"
+                  type="image/svg+xml"
+                />
               </span>
             {:else}
               <DislikeLine size="20" style="vertical-align: middle" />
@@ -555,13 +632,26 @@
         {/if}
         {#if $isLoginStore}
           <!-- 喜欢 -->
-          <div class="tool-item love" on:click={handleLoveFun} bind:this={loveDom}>
+          <div
+            class="tool-item love"
+            on:click={handleLoveFun}
+            bind:this={loveDom}
+          >
             {#if likeLoading}
               <span style="line-height: 30px;">
-                <embed width="24" height="24" src="/images/Ripple.svg" type="image/svg+xml" />
+                <embed
+                  width="24"
+                  height="24"
+                  src="/images/Ripple.svg"
+                  type="image/svg+xml"
+                />
               </span>
             {:else}
-              <span style="color:{isLikeCurrentSong ? 'var(--primary-text-color)' : '#fff'}">
+              <span
+                style="color:{isLikeCurrentSong
+                  ? 'var(--primary-text-color)'
+                  : '#fff'}"
+              >
                 {#if isLikeCurrentSong}
                   <Heart2Fill size="20" style="vertical-align: middle" />
                 {:else}
@@ -573,12 +663,16 @@
         {/if}
         {#if !$isFMPlayStore}
           <!-- 播放模式 -->
-          <div class="tool-item mode" on:click={e => changeRrpeatFun(e)} bind:this={repeatDom}>
-            {#if $playRepeatModelStore === 'repeat'}
+          <div
+            class="tool-item mode"
+            on:click={(e) => changeRrpeatFun(e)}
+            bind:this={repeatDom}
+          >
+            {#if $playRepeatModelStore === "repeat"}
               <SortDesc size="20" style="vertical-align: middle" />
-            {:else if $playRepeatModelStore === 'repeatOnce'}
+            {:else if $playRepeatModelStore === "repeatOnce"}
               <RepeatOneLine size="20" style="vertical-align: middle" />
-            {:else if $playRepeatModelStore === 'heart'}
+            {:else if $playRepeatModelStore === "heart"}
               <span class:heart-beat={$playStatusStore}>
                 <HeartPulseLine size="20" style="vertical-align: middle" />
               </span>
@@ -588,8 +682,12 @@
           </div>
         {/if}
         <!-- 评论 -->
-        {#if $isShowCommentStore != '0'}
-          <div class="tool-item comment" on:click={toCommentFun} bind:this={commentDom}>
+        {#if $isShowCommentStore != "0"}
+          <div
+            class="tool-item comment"
+            on:click={toCommentFun}
+            bind:this={commentDom}
+          >
             <Message2Line size="20" style="vertical-align: middle" />
           </div>
         {/if}
@@ -603,9 +701,15 @@
           bind:this={preDom}
         >
           {#if $isFMPlayStore}
-            <RadioLine size="24px" style="vertical-align: middle;;height:80px" />
+            <RadioLine
+              size="24px"
+              style="vertical-align: middle;;height:80px"
+            />
           {:else}
-            <SkipBackFill size="40px" style="vertical-align: middle;height:80px" />
+            <SkipBackFill
+              size="40px"
+              style="vertical-align: middle;height:80px"
+            />
           {/if}
         </div>
         <div
@@ -615,10 +719,16 @@
             if ($playStatusStore) {
               window.audioDOM.pause();
               playStatusStore.set(false);
-              localStorage.setItem('pauseTimes', new Date().getTime());
+              localStorage.setItem("pauseTimes", new Date().getTime());
             } else {
               //解决长时间不播放URL失效问题(暂定30分钟过期)
-              if ((new Date().getTime() - Number(localStorage.getItem('pauseTimes'))) / 1000 / 60 > 30) {
+              if (
+                (new Date().getTime() -
+                  Number(localStorage.getItem("pauseTimes"))) /
+                  1000 /
+                  60 >
+                30
+              ) {
                 window.audioDOM.src = `https://music.163.com/song/media/outer/url?id=${$currentSongStore.id}.mp3`;
               }
               window.audioDOM.play();
@@ -633,7 +743,10 @@
           {/if}
         </div>
         <div class="con-item next" on:click={playNextFun} bind:this={nextDom}>
-          <SkipForwardFill size="40px" style="vertical-align: middle;height:80px" />
+          <SkipForwardFill
+            size="40px"
+            style="vertical-align: middle;height:80px"
+          />
         </div>
       </div>
     </div>
@@ -642,24 +755,26 @@
 {#if $playIsMaxStore && 0 < parseFloat($maxPlayToTopStore) < window.screen.height - 40}
   <div
     class="play-mask"
-    style="background-color: rgba(0, 0, 0, {0.9 - parseFloat($maxPlayToTopStore) / window.screen.height});"
+    style="background-color: rgba(0, 0, 0, {0.9 -
+      parseFloat($maxPlayToTopStore) / window.screen.height});"
   />
 {/if}
 
 <Picker
   isShow={PickerShow}
   title="请选择歌手"
-  on:ChangeShow={e => {
+  on:ChangeShow={(e) => {
     PickerShow = e.detail.isShow;
   }}
-  on:PickerClick={e => {
-    if (e.detail.item.id != 0) {
-      mainCoverTypeStore.set('cover');
-      maxPlayToTopStore.set(window.screen.height + 'px');
+  on:PickerClick={(e) => {
+    const { item: artist } = e.detail;
+    if (artist.id != 0) {
+      mainCoverTypeStore.set("cover");
+      maxPlayToTopStore.set(window.screen.height + "px");
       playIsMaxStore.set(false);
       isHomePageStore.set(false);
-      currentDetailSongerIdStore.set(e.detail.item.id);
-      push('/songerDetail');
+      currentDetailSongerIdStore.set(artist.id);
+      push(`/artist?id=${artist.id}`);
     }
   }}
   list={songers}

@@ -1,7 +1,7 @@
 <script>
   import { onMount, afterUpdate } from 'svelte';
   import Lazy from 'svelte-lazy';
-  import { push, onResume } from 'svelte-stack-router';
+  import { push, onResume, search } from 'svelte-stack-router';
   import { PlayCircleLine, ChatHeartFill, ChatHeartLine } from 'svelte-remixicon';
 
   import { NavBar, Title, Button } from '../components/base';
@@ -20,6 +20,9 @@
 
   import { getSongerDetail, getSongerTop, followAArtist } from '../api/songer';
   import { getSongUrl } from '../api/song';
+import { parseQuery } from '../utils/common';
+
+  const { id } = parseQuery($search);
 
   $: coverImgUrl = defaultCover;
   $: name = '--';
@@ -29,9 +32,11 @@
   $: albumSize = 0;
   $: hotSongs = [];
   $: collect = false;
-  $: currentSongerId = 0; //当前歌手 ID，用于计算更新页面
+  $: currentSongerId = id; //当前歌手 ID，用于计算更新页面
 
   onResume(() => {
+    const { id } = parseQuery($search);
+    currentSongerId = id;
     if (!$defaultResumableStore) {
       allMount();
     }
@@ -39,11 +44,11 @@
   onMount(() => {
     allMount();
   });
-  afterUpdate(() => {
-    if (currentSongerId !== $currentDetailSongerIdStore) {
-      allMount();
-    }
-  });
+  // afterUpdate(() => {
+  //   if (currentSongerId !== $currentDetailSongerIdStore) {
+  //     allMount();
+  //   }
+  // });
   function allMount() {
     getSongerDetailFun();
     getSongerTopFun();
@@ -55,8 +60,7 @@
     }
   }
   async function getSongerDetailFun() {
-    currentSongerId = $currentDetailSongerIdStore;
-    const res = await getSongerDetail($currentDetailSongerIdStore);
+    const res = await getSongerDetail(currentSongerId);
     if (res.code === 200) {
       name = res.data.artist.name;
       coverImgUrl = res.data.user ? res.data.user.avatarUrl : res.data.artist.cover;
@@ -67,7 +71,7 @@
     }
   }
   async function getSongerTopFun() {
-    const res = await getSongerTop($currentDetailSongerIdStore);
+    const res = await getSongerTop(currentSongerId);
     if (res.code === 200) {
       hotSongs = res.songs;
     }

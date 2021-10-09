@@ -17,14 +17,7 @@
   export let trackCount = 0;
 
   let coverDom;
-
-  onMount(() => {
-    // if (coverDom) {
-    //   ripple(coverDom);
-    // }
-    console.log('PlayListSover');
-  });
-
+  
   function goToDetail() {
     isHomePageStore.set(false);
     push(`/playlist?id=${id}`);
