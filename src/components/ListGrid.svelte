@@ -3,7 +3,7 @@
   import { ArrowRightSLine } from 'svelte-remixicon';
 
   import { Tip } from './base';
-  import PlayListCover from './PlayListCover.svelte';
+  import PlayListCover from './Album.svelte';
 
   import { ripple } from '../utils/common';
 
@@ -51,6 +51,7 @@
           name={play.name}
           coverImgUrl={play.coverImgUrl}
           id={play.id}
+          width={220}
           playCount={play.playCount}
           copywriter={play.copywriter ? play.copywriter : ''}
           trackCount={play.trackCount}

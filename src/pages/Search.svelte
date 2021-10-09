@@ -4,7 +4,7 @@
 
   import { NavBar } from '../components/base';
   import Songer from '../components/Singer.svelte';
-  import MiniPlayListCover from '../components/MiniPlayListCover.svelte';
+  import MiniPlayListCover from '../components/Album.svelte';
   import SongList from '../components/SongList.svelte';
 
   import { search } from '../api/others';

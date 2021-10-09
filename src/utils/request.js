@@ -1,5 +1,5 @@
-import { get } from 'svelte/store';
 import axios from 'axios';
+import { get } from 'svelte/store';
 import Cookies from 'js-cookie';
 import { isLoadingStore } from '../store/common';
 import { Alert } from './common';
@@ -12,15 +12,10 @@ const service = axios.create({
   timeout: 15000,
 });
 
-service.interceptors.request.use(function (config) {
+service.interceptors.request.use(config => {
   if (!config.params) config.params = {};
-  //开发环境增加cookie，避免跨域301错误
-  if (config.params.cookie) {
-    config.params.cookie = config.params.cookie;
-  } else if (baseURL[0] !== '/') {
-    const c = Cookies.get('MUSIC_U')
-    c && (config.params.cookie = `MUSIC_U=${c};`);
-  }
+  // const c = Cookies.get('MUSIC_U')
+  // c && (config.params.cookie = `MUSIC_U=${c};`);
   if (!config.isHideLoading) {
     if (!get(isLoadingStore)) {
       isLoadingStore.set(true);
@@ -55,11 +50,6 @@ service.interceptors.response.use(
             : '未知错误')
       );
       return error.response.data;
-
-      // Promise.then(error => {
-      //   console.log(333, error);
-      // });
-      // return Promise.reject(error);
     }
   }
 );

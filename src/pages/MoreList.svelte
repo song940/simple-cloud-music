@@ -4,7 +4,7 @@
   import Lazy from 'svelte-lazy';
 
   import { NavBar, Pagination } from '../components/base';
-  import MiniPlayListCover from '../components/MiniPlayListCover.svelte';
+  import MiniPlayListCover from '../components/Album.svelte';
 
   import { defaultResumableStore } from '../store/common';
 

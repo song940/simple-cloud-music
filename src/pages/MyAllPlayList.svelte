@@ -4,7 +4,7 @@
   import { search, onResume } from 'svelte-stack-router';
 
   import { NavBar } from '../components/base';
-  import MiniPlayListCover from '../components/MiniPlayListCover.svelte';
+  import MiniPlayListCover from '../components/Album.svelte';
 
   import { userPlaylist } from '../api/user';
 
