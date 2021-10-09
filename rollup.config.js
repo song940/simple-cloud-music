@@ -6,37 +6,8 @@ import { terser } from 'rollup-plugin-terser';
 import replace from 'rollup-plugin-replace';
 import json from '@rollup/plugin-json';
 import md from 'rollup-plugin-md';
-import fs from 'fs';
 
 const production = !process.env.ROLLUP_WATCH;
-
-function insertHashToIndex() {
-  return {
-    writeBundle() {
-      const stats = fs.statSync('public/build/bundle.js');
-      let indexHtml = fs.readFileSync(`public/index.html`, 'utf8');
-      // let swJs = fs.readFileSync(`html/service-worker.js`, "utf8");
-      indexHtml = indexHtml
-        .replace(/\/global\.css(\?_=[0-9\.]+)?/, '/global.css?_=' + stats.ctimeMs)
-        .replace(/\/normalize\.css(\?_=[0-9\.]+)?/, '/normalize.css?_=' + stats.ctimeMs)
-        .replace(/\/theme\.css(\?_=[0-9\.]+)?/, '/theme.css?_=' + stats.ctimeMs)
-        .replace(/\/build\/bundle\.css(\?_=[0-9\.]+)?/, '/build/bundle.css?_=' + stats.ctimeMs)
-        .replace(/\/build\/bundle\.js(\?_=[0-9\.]+)?/, '/build/bundle.js?_=' + stats.ctimeMs);
-      // .replace(
-      //   /\/service-worker\.js(\?_=[0-9\.]+)?/,
-      //   "/service-worker.js?_=" + stats.ctimeMs
-      // );
-      // swJs = swJs.replace(
-      //   /staticCache(\?_=[0-9\.]+)?/,
-      //   "staticCache?_=" + stats.ctimeMs
-      // );
-
-      // You can create a new file if you don't want to make a mutable modification.
-      fs.writeFileSync(`html/index.html`, indexHtml);
-      // fs.writeFileSync(`html/service-worker.js`, swJs);
-    },
-  };
-}
 
 export default {
   input: 'src/main.js',
@@ -46,7 +17,6 @@ export default {
     name: 'app',
     dir: 'public/build/',
     entryFileNames: 'bundle.js',
-    // entryFileNames: production ? `bundle?+_[hash].js` : "bundle.js",
   },
   plugins: [
     svelte({
@@ -99,12 +69,10 @@ export default {
 
 function serve() {
   let started = false;
-
   return {
     writeBundle() {
       if (!started) {
         started = true;
-
         require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
           stdio: ['ignore', 'inherit', 'inherit'],
           shell: true,

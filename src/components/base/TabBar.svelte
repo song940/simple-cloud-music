@@ -1,11 +1,11 @@
 <script>
-  import { onMount, afterUpdate } from 'svelte';
+  import { onMount } from 'svelte';
   import { ThumbUpFill, Compass3Fill, AccountCircleFill } from 'svelte-remixicon';
 
-  import { isHomePageStore, homeActiveStore } from '../../store/common';
   import { ripple } from '../../utils/common';
+  import { isHomePageStore, homeActiveStore } from '../../store/common';
 
-  let navDatas = [
+  const navDatas = [
     {
       icon: ThumbUpFill,
       text: '推荐',

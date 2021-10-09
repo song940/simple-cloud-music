@@ -22,15 +22,8 @@
     }
   });
   function goToDetail() {
-    playListIdStore.set(id);
     isHomePageStore.set(false);
-    if (trackCount > 1000) {
-      Confirm('😅 此歌单有 ' + trackCount + ' 首歌曲，加载时间可能比较久，确定查看歌单详情吗？', async () => {
-        push('/playlistdetail');
-      });
-    } else {
-      push('/playlistdetail');
-    }
+    push(`/playlist?id=${id}`);
   }
 </script>
 

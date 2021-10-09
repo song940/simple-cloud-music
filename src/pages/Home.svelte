@@ -7,10 +7,10 @@
 
   import { dailySignin } from '../api/user';
 
-  import { isLoginStore, homeActiveStore } from '../store/common';
+  import { isLoginStore, tabbarActive } from '../store/common';
 
   onMount(() => {
-    $isLoginStore ? homeActiveStore.set(0) : homeActiveStore.set(1);
+    $isLoginStore ? tabbarActive.set(0) : tabbarActive.set(1);
     //签到
     let date = new Date();
     if (
@@ -28,12 +28,12 @@
   }
 </script>
 
-<div style="display:{$homeActiveStore === 0 ? 'block' : 'none'}">
+<div style="display:{$tabbarActive === 0 ? 'block' : 'none'}">
   <Love />
 </div>
-<div style="display:{$homeActiveStore === 1 ? 'block' : 'none'}">
+<div style="display:{$tabbarActive === 1 ? 'block' : 'none'}">
   <Discover />
 </div>
-<div style="display:{$homeActiveStore === 2 ? 'block' : 'none'}">
+<div style="display:{$tabbarActive === 2 ? 'block' : 'none'}">
   <Mine />
 </div>

@@ -302,7 +302,7 @@ function emojiToUrl(value) {
  * @param {string} search,传入的参数
  * @returns 返回处理之后的对象
  */
-export function getRequest(search) {
+export function parseQuery(search) {
   let theRequest = new Object();
   let strs = '';
   if (search.indexOf('?') != -1) {

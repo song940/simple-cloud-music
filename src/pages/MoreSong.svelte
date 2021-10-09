@@ -18,7 +18,7 @@
   import { getAllSongs } from '../api/songer';
   import { getSongUrl } from '../api/song';
 
-  import { getRequest, Toast } from '../utils/common';
+  import { parseQuery, Toast } from '../utils/common';
 
   $: songList = [];
   $: hasMore = true;
@@ -40,14 +40,14 @@
       offset = 0;
       active = 0;
       order = 'hot';
-      searchObj = getRequest($search);
+      searchObj = parseQuery($search);
       paginationHeight = document.documentElement.clientHeight || document.body.clientHeight - 120;
       getAllSongsFun(0, order);
     }
   });
 
   onMount(() => {
-    searchObj = getRequest($search);
+    searchObj = parseQuery($search);
     paginationHeight = document.documentElement.clientHeight || document.body.clientHeight - 120;
     getAllSongsFun(0, order);
   });

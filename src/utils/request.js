@@ -18,7 +18,8 @@ service.interceptors.request.use(function (config) {
   if (config.params.cookie) {
     config.params.cookie = config.params.cookie;
   } else if (baseURL[0] !== '/') {
-    config.params.cookie = `MUSIC_U=${Cookies.get('MUSIC_U')};`;
+    const c = Cookies.get('MUSIC_U')
+    c && (config.params.cookie = `MUSIC_U=${c};`);
   }
   if (!config.isHideLoading) {
     if (!get(isLoadingStore)) {
@@ -32,27 +33,13 @@ service.interceptors.response.use(
   response => {
     isLoadingStore.set(false);
     const res = response.data;
-    if (res.code === 200) {
-      return res;
-    } else if (res.code === 800) {
-      return res;
-    } else if (res.code === 801) {
-      return res;
-    } else if (res.code === 802) {
-      return res;
-    } else if (res.code === 803) {
-      return res;
-    } else {
-      if (res.code) {
-        Alert(
-          response.config.url + '-' + res.code + '：' + (res.message ? res.message : res.msg ? res.msg : '未知错误')
-        );
-        return res;
-      } else {
-        Alert(response + '：' + response);
-        return res;
-      }
+    console.debug('response', response.config.url, res);
+    if (res.code && ![200, 800, 801, 802, 803].includes(res.code)) {
+      const msg = res.message || res.msg || '未知错误';
+      const message = `${msg} (${response.config.url}: ${res.code})`;
+      Alert(typeof res === 'string' ? res : message);
     }
+    return res;
   },
   error => {
     isLoadingStore.set(false);
@@ -60,15 +47,15 @@ service.interceptors.response.use(
     if (error.response.config.url != '/daily_signin') {
       Alert(
         error.response.data.code +
-          '：' +
-          (error.response.data.message
-            ? error.response.data.message
-            : error.response.data.msg
+        '：' +
+        (error.response.data.message
+          ? error.response.data.message
+          : error.response.data.msg
             ? error.response.data.msg
             : '未知错误')
       );
-      return  error.response.data;
-     
+      return error.response.data;
+
       // Promise.then(error => {
       //   console.log(333, error);
       // });

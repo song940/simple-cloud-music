@@ -184,12 +184,14 @@ export function toplists() {
  * @param {number} params.t
  * @param {number} params.id
  */
-export function subscribePlaylist(params) {
+export function subscribePlaylist(id, isSubscribe) {
   params.timestamp = new Date().getTime();
   return request({
     url: '/playlist/subscribe',
     method: 'post',
-    params,
+    params: {
+      id, t: isSubscribe ? 1 : 2
+    },
     // needCookie: false,
   });
 }

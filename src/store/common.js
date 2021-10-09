@@ -13,7 +13,7 @@ export const isHomePageStore = writable(true);
 //路由变化是否刷新页面
 export const defaultResumableStore = writable(false);
 //主页active
-export const homeActiveStore = writable('1');
+export const tabbarActive = writable('1');
 //自动滚动
 export const restoreScrollStore = writable(localStorage.getItem('restoreScroll') === '0' ? false : true);
 //音质

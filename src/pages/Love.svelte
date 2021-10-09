@@ -1,15 +1,20 @@
 <script>
-  import { onMount } from 'svelte';
-  import { push } from 'svelte-stack-router';
-  import { RadioFill, RefreshLine, Calendar2Fill, GitRepositoryPrivateLine } from 'svelte-remixicon';
+  import { onMount } from "svelte";
+  import { push } from "svelte-stack-router";
+  import {
+    RadioFill,
+    RefreshLine,
+    Calendar2Fill,
+    GitRepositoryPrivateLine,
+  } from "svelte-remixicon";
 
-  import TopTitle from '../components/TopTitle.svelte';
-  import { Button } from '../components/base';
-  import ListGrid from '../components/ListGrid.svelte';
-  import SongList from '../components/SongList.svelte';
-  import Songer from '../components/Singer.svelte';
+  import TopTitle from "../components/TopTitle.svelte";
+  import { Button } from "../components/base";
+  import ListGrid from "../components/ListGrid.svelte";
+  import SongList from "../components/SongList.svelte";
+  import Songer from "../components/Singer.svelte";
 
-  import { isLoginStore, defaultCover } from '../store/common';
+  import { isLoginStore, defaultCover } from "../store/common";
   import {
     playIsMaxStore,
     playStatusStore,
@@ -21,16 +26,26 @@
     isFMPlayStore,
     FMPlayNextStore,
     currentSongQualityStore,
-  } from '../store/play';
-  import { isHomePageStore } from '../store/common';
-  import { todayListStore } from '../store/playList';
-  import { userLikeListIdStore } from '../store/user';
+  } from "../store/play";
+  import { isHomePageStore } from "../store/common";
+  import { todayListStore } from "../store/playList";
+  import { userLikeListIdStore } from "../store/user";
 
-  import { dailyRecommendTracks, getSimiPlaylist, dailyRecommendPlaylist, getPlaylistDetail } from '../api/playlist';
-  import { getSongUrl, personalFM, getSongDetail, getSimiSong } from '../api/song';
-  import { similarArtists, getSongerDetail } from '../api/songer';
+  import {
+    dailyRecommendTracks,
+    getSimiPlaylist,
+    dailyRecommendPlaylist,
+    getPlaylistDetail,
+  } from "../api/playlist";
+  import {
+    getSongUrl,
+    personalFM,
+    getSongDetail,
+    getSimiSong,
+  } from "../api/song";
+  import { similarArtists, getSongerDetail } from "../api/songer";
 
-  import { songerListToStr, Toast, ripple } from '../utils/common';
+  import { songerListToStr, Toast, ripple } from "../utils/common";
 
   let dailyRecommendPlayList = []; //每日歌单推荐
   let randomLoveSong = {}; //随机一个喜欢歌曲
@@ -38,7 +53,7 @@
   let randomTenLoveSong = {}; //随机一个喜欢歌曲
   let similarSongs = []; //相似歌曲推荐
   let topTitleRightList = {
-    type: 'icon',
+    type: "icon",
     path: RefreshLine,
   };
   let FMDom;
@@ -61,13 +76,14 @@
       dailyRecommendPlaylistFun();
       dailyRecommendTracksFun();
       personalFMFun(true);
-      let useLoveSongIds = JSON.parse(localStorage.getItem('useLoveSongIds'));
+      let useLoveSongIds = JSON.parse(localStorage.getItem("useLoveSongIds")) || [];
       let randomIndex = Math.floor(Math.random() * useLoveSongIds.length);
       getSongDetailFun(useLoveSongIds[randomIndex]);
       getSimiPlaylistFun(useLoveSongIds[randomIndex]);
       getPlaylistDetailFun();
       //收藏随机歌手一位
-      const useLoveSongerIds = JSON.parse(localStorage.getItem('useLoveSongerIds')) || [];
+      const useLoveSongerIds =
+        JSON.parse(localStorage.getItem("useLoveSongerIds")) || [];
       let index = Math.floor(Math.random() * useLoveSongerIds.length);
       if (index) {
         getSongerDetailFun(useLoveSongerIds[index]);
@@ -78,7 +94,7 @@
   //今日推荐歌曲
   function playTodayFun() {
     isHomePageStore.set(false);
-    push('/todayListDetail');
+    push("/todayListDetail");
   }
   //播放私人FM
   function playFMFun() {
@@ -86,10 +102,10 @@
       window.audioDOM.play();
       playStatusStore.set(true);
       playIsMaxStore.set(true);
-      maxPlayToTopStore.set('0px');
+      maxPlayToTopStore.set("0px");
     } else {
       isFMPlayStore.set(true);
-      localStorage.setItem('isFMPlay', '1');
+      localStorage.setItem("isFMPlay", "1");
       getSongUrlFun($FMPlayStore);
     }
   }
@@ -107,7 +123,7 @@
       if (first) {
         FMPlayStore.set(res.data[0]);
         FMPlayNextStore.set(res.data[1]);
-        localStorage.setItem('FMPlay', JSON.stringify($FMPlayStore));
+        localStorage.setItem("FMPlay", JSON.stringify($FMPlayStore));
       } else {
         FMPlayStore.set(res.data[0]);
       }
@@ -126,8 +142,8 @@
     if (res.code === 200) {
       let olddailyRecommendPlayList = res.recommend;
       if (
-        olddailyRecommendPlayList[0].copywriter === '猜你喜欢' &&
-        olddailyRecommendPlayList[0].name.indexOf('私人雷达') > -1
+        olddailyRecommendPlayList[0].copywriter === "猜你喜欢" &&
+        olddailyRecommendPlayList[0].name.indexOf("私人雷达") > -1
       ) {
         getPlaylistDetailFun(true, olddailyRecommendPlayList);
       } else {
@@ -163,10 +179,15 @@
   }
   //请求歌单详情
   async function getPlaylistDetailFun(isRadar = false, list) {
-    const res = await getPlaylistDetail(isRadar ? list[0].id : $userLikeListIdStore); //获取歌单详情
+    const res = await getPlaylistDetail(
+      isRadar ? list[0].id : $userLikeListIdStore
+    ); //获取歌单详情
     if (res.code === 200) {
       if (isRadar) {
-        if (list[0].copywriter === '猜你喜欢' && list[0].name.indexOf('私人雷达') > -1) {
+        if (
+          list[0].copywriter === "猜你喜欢" &&
+          list[0].name.indexOf("私人雷达") > -1
+        ) {
           list[0].copywriter = list[0].name;
           list[0].picUrl = res.playlist.tracks[0].al.picUrl;
           list[0].name = `从《${res.playlist.tracks[0].name}》开始听吧`;
@@ -187,11 +208,11 @@
     const res = await getSongUrl(song.id);
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, 'https:');
+        song.url = res.data[0].url.replace(/^http:/, "https:");
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
-          currentSongQualityStore.set('试听');
-        } else if (res.data[0].type === 'flac') {
-          currentSongQualityStore.set('FLAC');
+          currentSongQualityStore.set("试听");
+        } else if (res.data[0].type === "flac") {
+          currentSongQualityStore.set("FLAC");
         } else {
           currentSongQualityStore.set(res.data[0].br);
         }
@@ -206,10 +227,13 @@
           song.ar = song.artists;
           song.alia = song.alias;
           FMPlayStore.set(song);
-          localStorage.setItem('currentSong', JSON.stringify(song));
+          localStorage.setItem("currentSong", JSON.stringify(song));
         }
       } else {
-        Toast(`😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`, 2000);
+        Toast(
+          `😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`,
+          2000
+        );
       }
     }
   }
@@ -229,7 +253,8 @@
           }
         }
       }
-      simiSongers = res.artists.length > 6 ? res.artists.slice(0, 6) : res.artists;
+      simiSongers =
+        res.artists.length > 6 ? res.artists.slice(0, 6) : res.artists;
     }
   }
   //获取随机歌手信息
@@ -247,7 +272,7 @@
     // let differenceSet = new Set([...aSet].filter(x => !bSet.has(x)));
     // return Array.from(differenceSet);
     // 交集;
-    let intersection = new Set([...aSet].filter(x => bSet.has(x)));
+    let intersection = new Set([...aSet].filter((x) => bSet.has(x)));
     return Array.from(intersection);
   }
   function topClickFun(event) {
@@ -260,28 +285,40 @@
 <div class="love">
   {#if $isLoginStore}
     <div class="login-box">
-      <TopTitle title="推荐" desc="专属推荐" {topTitleRightList} {isRefresh} on:IconClick={topClickFun} />
+      <TopTitle
+        title="推荐"
+        desc="专属推荐"
+        {topTitleRightList}
+        {isRefresh}
+        on:IconClick={topClickFun}
+      />
       <div class="login">
         <div class="today" on:click={playTodayFun} bind:this={todayDom}>
           <div
             class="today-img-box"
-            style="width: {localStorage.getItem('fullWidth') - 40}px;background-image:url({$todayListStore.length !== 0
-              ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') + '?param=800y800'
+            style="width: {localStorage.getItem('fullWidth') -
+              40}px;background-image:url({$todayListStore.length !== 0
+              ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') +
+                '?param=800y800'
               : defaultCover})"
           />
           <div class="day-box">
             <div class="day">今日推荐</div>
             <div class="name-list">
               <div class="name">
-                {$todayListStore.length !== 0 ? $todayListStore[0].name : ''}
+                {$todayListStore.length !== 0 ? $todayListStore[0].name : ""}
               </div>
               <div class="songer">
-                {$todayListStore.length !== 0 ? songerListToStr($todayListStore[0].ar) : ''}
+                {$todayListStore.length !== 0
+                  ? songerListToStr($todayListStore[0].ar)
+                  : ""}
               </div>
               <div class="calendar">
                 <span style="position:relative;top:2px ">
                   <Calendar2Fill size="14" />
-                </span>{`${new Date().getMonth() + 1}月${new Date().getDate()}日`}
+                </span>{`${
+                  new Date().getMonth() + 1
+                }月${new Date().getDate()}日`}
               </div>
             </div>
           </div>
@@ -290,7 +327,8 @@
           class="fm-box"
           on:click={playFMFun}
           style="background:url({$FMPlayStore.album
-            ? $FMPlayStore.album.blurPicUrl.replace(/^http:/, 'https:') + '?param=80y80'
+            ? $FMPlayStore.album.blurPicUrl.replace(/^http:/, 'https:') +
+              '?param=80y80'
             : ''})"
           bind:this={FMDom}
         >
@@ -299,8 +337,9 @@
               <img
                 class="fm-cover-img"
                 src={$FMPlayStore.album
-                  ? $FMPlayStore.album.blurPicUrl.replace(/^http:/, 'https:') + '?param=240y240'
-                  : ''}
+                  ? $FMPlayStore.album.blurPicUrl.replace(/^http:/, "https:") +
+                    "?param=240y240"
+                  : ""}
                 alt=""
               />
             </div>
@@ -320,16 +359,22 @@
                 </div>
               {/if}
               <div class="fm-name">
-                {$FMPlayStore.name ? $FMPlayStore.name : ''}
+                {$FMPlayStore.name ? $FMPlayStore.name : ""}
                 <span class="alia">
-                  {$FMPlayStore.alia && $FMPlayStore.alia.length > 0 ? `(${$FMPlayStore.alia[0]})` : ''}
+                  {$FMPlayStore.alia && $FMPlayStore.alia.length > 0
+                    ? `(${$FMPlayStore.alia[0]})`
+                    : ""}
                 </span>
               </div>
               <div class="fm-songer">
-                {$FMPlayStore.artists ? songerListToStr($FMPlayStore.artists) : ''}
+                {$FMPlayStore.artists
+                  ? songerListToStr($FMPlayStore.artists)
+                  : ""}
                 {#if $FMPlayStore.al}
                   <span>
-                    {$FMPlayStore.al.name === '' ? '' : `- ${$FMPlayStore.al.name}`}
+                    {$FMPlayStore.al.name === ""
+                      ? ""
+                      : `- ${$FMPlayStore.al.name}`}
                     <!-- {$FMPlayStore.al === true}
                   {$FMPlayStore.album === true} -->
                     <!-- {$FMPlayStore.al
@@ -352,7 +397,11 @@
           </div>
         </div>
         <div class="list-grid">
-          <ListGrid title="每日歌单推荐" isShowMore={false} playList={dailyRecommendPlayList} />
+          <ListGrid
+            title="每日歌单推荐"
+            isShowMore={false}
+            playList={dailyRecommendPlayList}
+          />
         </div>
         {#if similarSongs.length > 0}
           <div class="simiTitle">相似歌曲推荐</div>
@@ -383,7 +432,11 @@
     </div>
   {:else}
     <div>
-      <TopTitle title="推荐" desc="专属推荐" topTitleRightList={{ type: 'text', text: '' }} />
+      <TopTitle
+        title="推荐"
+        desc="专属推荐"
+        topTitleRightList={{ type: "text", text: "" }}
+      />
       <div class="noLogin">
         <div>
           <img class="login-img" src="images/login.png" alt="" />
@@ -394,7 +447,7 @@
             type="primary"
             on:BtnClick={() => {
               isHomePageStore.set(false);
-              push('/login');
+              push("/login");
             }}
           >
             立即登录
@@ -661,7 +714,7 @@
     left: 0;
     z-index: -3;
     animation: move 40s infinite;
-    background-image: url('/images/defaultCover.png');
+    background-image: url("/images/defaultCover.png");
     -webkit-animation: move 40s infinite;
     -webkit-background-size: cover;
     -moz-background-size: cover;
@@ -730,7 +783,7 @@
     color: #fff;
     border-radius: 10px;
     margin-top: 20px;
-    background: url('');
+    background: url("");
     background-size: cover !important;
     background-position: 50% 50% !important;
   }

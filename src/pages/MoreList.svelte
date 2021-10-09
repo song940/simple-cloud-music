@@ -10,7 +10,7 @@
 
   import { topPlaylist, highQualityPlaylist } from '../api/playlist';
 
-  import { getRequest } from '../utils/common';
+  import { parseQuery } from '../utils/common';
 
   $: playList = [];
   $: hasMore = true;
@@ -36,7 +36,7 @@
   });
   function allMount() {
     paginationHeight = document.documentElement.clientHeight || document.body.clientHeight - 120;
-    searchObj = getRequest($search);
+    searchObj = parseQuery($search);
     if (searchObj.type === 'high') {
       highQualityPlaylistFun(searchObj.cat);
     } else {

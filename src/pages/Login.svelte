@@ -1,85 +1,115 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { pop } from 'svelte-stack-router';
-  import md5 from 'crypto-js/md5';
-  import { LinksLine } from 'svelte-remixicon';
-  import QrCode from 'svelte-qrcode';
+  import { onMount, onDestroy } from "svelte";
+  import { pop, search } from "svelte-stack-router";
+  import md5 from "crypto-js/md5";
+  import { LinksLine } from "svelte-remixicon";
+  import QrCode from "svelte-qrcode";
 
-  import { NavBar, Input, Button } from '../components/base';
+  import { NavBar, Input, Button } from "../components/base";
 
-  import { isHomePageStore, isLoginStore } from '../store/common';
-  import { playIsMinStore } from '../store/play';
-  import { userInfoStore, userLikeSongIdsStore, userLikeListIdStore } from '../store/user';
+  import { isHomePageStore, isLoginStore } from "../store/common";
+  import { playIsMinStore } from "../store/play";
+  import {
+    userInfoStore,
+    userLikeSongIdsStore,
+    userLikeListIdStore,
+  } from "../store/user";
 
-  import { loginWithPhone, loginWithEmail, loginQrCodeKey, loginQrCodeCreate, loginQrCodeCheck } from '../api/auth';
-  import { userPlaylist, userLikedSongsIDs, likedArtists, userAccount, sendSmsCode } from '../api/user';
+  import {
+    loginWithPhone,
+    loginWithEmail,
+    loginQrCodeKey,
+    loginQrCodeCreate,
+    loginQrCodeCheck,
+  } from "../api/auth";
+  import {
+    userPlaylist,
+    userLikedSongsIDs,
+    likedArtists,
+    userAccount,
+    sendSmsCode,
+  } from "../api/user";
 
-  import { setCookies, Alert, Toast } from '../utils/common';
+  import { setCookies, Alert, Toast, parseQuery } from "../utils/common";
+
+  let { type = "phone" } = parseQuery($search);
 
   let timerLogin = null;
-  let phone = '';
-  let email = '';
-  let password_phone = '';
-  let password_email = '';
-  let code_phone = '';
-  let email_phone = '';
-  let type = 'phone';
-  $: phoneType = 'code'; //code--短信验证，pwd--密码验证
+
+  let phone = "";
+  let phone_code = "";
+  let phone_password = "";
+
+  let email = "";
+  let email_password = "";
+
+  $: phoneType = "code"; //code--短信验证，pwd--密码验证
   let tiptext =
-    '您的密码会进行 MD5 加密后再传输到网易云 API。「简易云音乐」不会传输您的账号数据到任何非网易云音乐官方服务器。本工程源码已开源，可随时到 https://github.com/dufu1991/simple-cloud-music 查看验证逻辑。实在不放心建议使用短信验证或二维码登录。';
-  $: loginType = type === 'qr' ? '二维码登录' : type === 'phone' ? '手机号登录' : '邮箱登录';
-  $: qrImg = '';
-  $: qrTip = '请扫码';
-  $: btnText = '获取验证码';
+    "您的密码会进行 MD5 加密后再传输到网易云 API。本应用不会传输您的账号数据到任何非网易云音乐官方服务器。";
+  $: loginType =
+    type === "qr" ? "二维码登录" : type === "phone" ? "手机号登录" : "邮箱登录";
+  $: qrImg = "";
+  $: qrTip = "请扫码";
+  $: btnText = "获取验证码";
+
+  function isPhone(phone) {
+    //手机号正则
+    let mPattern = /^1[3-9]\d{9}$/;
+    //返回 true or false
+    return mPattern.test(phone);
+  }
+
   function loginSuccFun(res) {
     //登录成功
     setCookies(res.cookie);
+    isLoginStore.set(true);
     userInfoStore.set(res);
-    localStorage.setItem('userInfo', JSON.stringify(res));
+    localStorage.setItem("userInfo", JSON.stringify(res));
     userPlaylistFun(res);
   }
   //手机号登录
-  async function getClickPhone() {
+  async function doPhoneLogin() {
     if (!isPhone(phone)) {
-      Toast('请输入正确的手机号');
-    } else if (phoneType === 'code' && code_phone.length != 4) {
-      Toast('请输入四位验证码');
+      return Toast("请输入正确的手机号");
+    }
+    if (phoneType === "code" && phone_code.length != 4) {
+      return Toast("请输入四位验证码");
+    }
+
+    let params = {};
+    if (phoneType === "code") {
+      //验证码验证
+      params = {
+        phone,
+        captcha: phone_code,
+        password: "fakePassword",
+      };
     } else {
-      let params = {};
-      if (phoneType === 'code') {
-        //验证码验证
-        params = {
-          phone,
-          captcha: code_phone,
-          password: 'fakePassword',
-        };
-      } else {
-        //密码验证
-        params = {
-          phone,
-          md5_password: password_phone,
-          password: 'fakePassword',
-        };
-      }
-      const res = await loginWithPhone(params);
-      if (res.code === 200) {
-        loginSuccFun(res);
-      } else {
-        Alert('登录不成功, 请重新登录。');
-      }
+      //密码验证
+      params = {
+        phone,
+        md5_password: phone_password,
+        password: "fakePassword",
+      };
+    }
+    const res = await loginWithPhone(params);
+    if (res.code === 200) {
+      loginSuccFun(res);
+    } else {
+      Alert("登录不成功, 请重新登录。");
     }
   }
   //邮箱登录
-  async function getClickEmail() {
+  async function doEmailLogin() {
     const res = await loginWithEmail({
       email,
-      md5_password: password_email,
-      password: 'fakePassword',
+      md5_password: email_password,
+      password: "fakePassword",
     });
     if (res.code === 200) {
       loginSuccFun(res);
     } else {
-      Alert('登录不成功, 请重新登录。');
+      Alert("登录不成功, 请重新登录。");
     }
   }
   onMount(() => {
@@ -89,83 +119,84 @@
   onDestroy(() => {
     playIsMinStore.set(true);
   });
-  function getpassword_phone(e) {
-    password_phone = md5(e.detail.value).toString();
+  function set_phone_password(e) {
+    phone_password = md5(e.detail.value).toString();
   }
-  function getcode_phone(e) {
-    code_phone = e.detail.value.toString();
+  function set_phone_code(e) {
+    phone_code = e.detail.value.toString();
   }
-  function getpassword_email(e) {
-    email_phone = md5(e.detail.value).toString();
+  function set_email_password(e) {
+    email_password = md5(e.detail.value).toString();
   }
   function getPhone(e) {
     phone = e.detail.value;
   }
-  function getEmail(e) {
+  function set_email_assress(e) {
     email = e.detail.value;
   }
-  async function userPlaylistFun(login) {
-    //获取用户收藏歌单ID列表,用于判断是否已经收藏
-    const res = await userPlaylist({
-      uid: login.account.id,
-      limit: 10000,
-      offset: 0,
-    });
-    if (res.code === 200) {
-      let ids = [];
-      for (let i = 0; i < res.playlist.length; i++) {
-        ids.push(res.playlist[i].id);
-      }
 
-      if (
-        res.playlist[0].creator.userId === $userInfoStore.account.id &&
-        res.playlist[0].name.substr(-5) === '喜欢的音乐'
-      ) {
-        userLikeListIdStore.set(res.playlist[0].id);
-        localStorage.setItem('userLikeListId', res.playlist[0].id);
-      }
+  // async function userPlaylistFun(login) {
+  //   //获取用户收藏歌单ID列表,用于判断是否已经收藏
+  //   const res = await userPlaylist({
+  //     uid: login.account.id,
+  //     limit: 10000,
+  //     offset: 0,
+  //   });
+  //   if (res.code === 200) {
+  //     let ids = [];
+  //     for (let i = 0; i < res.playlist.length; i++) {
+  //       ids.push(res.playlist[i].id);
+  //     }
 
-      localStorage.setItem('usePlayListIds', JSON.stringify(ids));
-      userLikedSongsIDsFun(login);
-    } else {
-      Alert('获取收藏歌单失败');
-    }
-  }
-  async function userLikedSongsIDsFun(login) {
-    //获取用户喜爱歌曲ID列表,用于判断是否已经收藏
-    const res = await userLikedSongsIDs(login.account.id);
-    if (res.code === 200) {
-      let ids = [];
-      for (let i = 0; i < res.ids.length; i++) {
-        ids.push(res.ids[i]);
-      }
-      isLoginStore.set(true);
-      localStorage.setItem('isLogin', true);
-      userLikeSongIdsStore.set(JSON.stringify(ids));
-      localStorage.setItem('useLoveSongIds', JSON.stringify(ids));
-      likedArtistsFun();
-    } else {
-      alert('获取喜爱歌曲失败');
-    }
-  }
-  //获取收藏的歌手
-  async function likedArtistsFun() {
-    const res = await likedArtists({ limit: 2000 });
-    if (res.code === 200) {
-      let ids = [];
-      for (let i = 0; i < res.data.length; i++) {
-        ids.push(res.data[i].id);
-      }
-      localStorage.setItem('useLoveSongerIds', JSON.stringify(ids));
-      setTimeout(() => {
-        pop();
-      }, 100);
-    } else {
-      alert('获取喜爱歌手失败');
-    }
-  }
+  //     if (
+  //       res.playlist[0].creator.userId === $userInfoStore.account.id &&
+  //       res.playlist[0].name.substr(-5) === "喜欢的音乐"
+  //     ) {
+  //       userLikeListIdStore.set(res.playlist[0].id);
+  //       localStorage.setItem("userLikeListId", res.playlist[0].id);
+  //     }
+
+  //     localStorage.setItem("usePlayListIds", JSON.stringify(ids));
+  //     userLikedSongsIDsFun(login);
+  //   } else {
+  //     Alert("获取收藏歌单失败");
+  //   }
+  // }
+  // async function userLikedSongsIDsFun(login) {
+  //   //获取用户喜爱歌曲ID列表,用于判断是否已经收藏
+  //   const res = await userLikedSongsIDs(login.account.id);
+  //   if (res.code === 200) {
+  //     let ids = [];
+  //     for (let i = 0; i < res.ids.length; i++) {
+  //       ids.push(res.ids[i]);
+  //     }
+  //     isLoginStore.set(true);
+  //     localStorage.setItem("isLogin", true);
+  //     userLikeSongIdsStore.set(JSON.stringify(ids));
+  //     localStorage.setItem("useLoveSongIds", JSON.stringify(ids));
+  //     likedArtistsFun();
+  //   } else {
+  //     alert("获取喜爱歌曲失败");
+  //   }
+  // }
+  // //获取收藏的歌手
+  // async function likedArtistsFun() {
+  //   const res = await likedArtists({ limit: 2000 });
+  //   if (res.code === 200) {
+  //     let ids = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       ids.push(res.data[i].id);
+  //     }
+  //     localStorage.setItem("useLoveSongerIds", JSON.stringify(ids));
+  //     setTimeout(() => {
+  //       pop();
+  //     }, 100);
+  //   } else {
+  //     alert("获取喜爱歌手失败");
+  //   }
+  // }
   async function qrLoginFun() {
-    type = 'qr';
+    type = "qr";
     const res = await loginQrCodeKey();
     if (res.code === 200) {
       loginQrCodeCreateFun(res.data.unikey);
@@ -208,13 +239,18 @@
     }
   }
   async function sendSmsCodeFun() {
-    if (btnText === '获取验证码') {
+    if (btnText === "获取验证码") {
       if (!isPhone(phone)) {
-        Toast('请输入正确的手机号');
+        Toast("请输入正确的手机号");
       } else {
         const res = await sendSmsCode(phone);
         if (res.code === 200) {
-          Toast('验证码已发送至' + phone.substring(phone.length - 4) + '，请注意查收！', 2000);
+          Toast(
+            "验证码已发送至" +
+              phone.substring(phone.length - 4) +
+              "，请注意查收！",
+            2000
+          );
           setinter60();
         }
       }
@@ -226,17 +262,11 @@
       time--;
       if (time === 0) {
         clearInterval(myTimer);
-        btnText = '获取验证码';
+        btnText = "获取验证码";
       } else {
-        btnText = time + 's 后重发';
+        btnText = time + "s 后重发";
       }
     }, 1000);
-  }
-  function isPhone(phone) {
-    //手机号正则
-    let mPattern = /^1[3-9]\d{9}$/;
-    //返回 true or false
-    return mPattern.test(phone);
   }
 </script>
 
@@ -252,64 +282,55 @@
     </div>
     <div class="simple"><img src="/images/sm_logo.png" alt="" /></div>
   </div>
-  {#if type === 'qr'}
+  {#if type === "qr"}
     <div class="qr">
       <div class="qr-tip">{qrTip}</div>
       <div class="qrcode">
         <QrCode value={qrImg} />
       </div>
-      <div class="tip">直接使用网易云音乐 APP 扫码登录，或截图保存之后使用网易云音乐 APP 扫码登录。</div>
-      <div class="type-switch">
-        <span
-          on:click={() => {
-            clearInterval(timerLogin);
-            type = 'phone';
-          }}
-        >
-          手机号登录
-        </span>&nbsp;｜&nbsp;
-        <span
-          on:click={() => {
-            clearInterval(timerLogin);
-            type = 'email';
-          }}
-        >
-          邮箱登录
-        </span>
+      <div class="tip">
+        直接使用网易云音乐 APP 扫码登录，或截图保存之后使用网易云音乐 APP
+        扫码登录。
       </div>
     </div>
   {/if}
-  {#if type === 'phone'}
+  {#if type === "phone"}
     <div class="phone">
       <Input label="手机号" type="tel" maxlength="11" on:setInput={getPhone} />
-      {#if phoneType === 'pwd'}
-        <Input label="密码" type="password" maxlength="40" bind:password_phone on:setInput={getpassword_phone} />
+      {#if phoneType === "pwd"}
+        <Input
+          label="密码"
+          type="password"
+          maxlength="40"
+          bind:phone_password
+          on:setInput={set_phone_password}
+        />
       {/if}
-      {#if phoneType === 'code'}
+      {#if phoneType === "code"}
         <Input
           label="验证码"
           type="tel"
           maxlength="4"
-          bind:code_phone
+          bind:phone_code
           rightBtn={true}
           {btnText}
-          on:setInput={getcode_phone}
+          on:setInput={set_phone_code}
           on:setBtn={sendSmsCodeFun}
         />
       {/if}
       <div class="phone-switch">
-        {#if phoneType === 'pwd'}
+        {#if phoneType === "pwd"}
           <span
             on:click={() => {
-              phoneType = 'code';
+              phoneType = "code";
             }}
           >
             短信验证
           </span>{/if}
-        {#if phoneType === 'code'}
+        {#if phoneType === "code"}
           <span
             on:click={() => {
-              phoneType = 'pwd';
+              phoneType = "pwd";
             }}
           >
             密码验证
@@ -317,44 +338,63 @@
         {/if}
       </div>
       <div class="btn">
-        <Button on:BtnClick={getClickPhone} type="primary">登录</Button>
+        <Button on:BtnClick={doPhoneLogin} type="primary">登录</Button>
       </div>
-      {#if phoneType === 'pwd'}
+      {#if phoneType === "pwd"}
         <div class="tip">{tiptext}</div>
       {/if}
-      <div class="type-switch">
-        <span on:click={qrLoginFun}> 二维码登录 </span>&nbsp;｜&nbsp;
-        <span
-          on:click={() => {
-            type = 'email';
-            clearInterval(timerLogin);
-          }}
-        >
-          邮箱登录
-        </span>
-      </div>
     </div>
   {/if}
 
-  {#if type === 'email'}
+  {#if type === "email"}
     <div class="email">
-      <Input label="邮箱" maxlength={30} type="text" on:setInput={getEmail} />
-      <Input label="密码" type="password" maxlength="40" bind:password_email on:setInput={getpassword_email} />
+      <Input
+        label="邮箱"
+        maxlength={30}
+        type="text"
+        on:setInput={set_email_assress}
+      />
+      <Input
+        label="密码"
+        type="password"
+        maxlength="40"
+        bind:email_password
+        on:setInput={set_email_password}
+      />
       <div class="btn">
-        <Button on:BtnClick={getClickEmail} type="primary">登录</Button>
+        <Button on:BtnClick={doEmailLogin} type="primary">登录</Button>
       </div>
       <div class="tip">{tiptext}</div>
-      <div class="type-switch">
-        <span
-          on:click={() => {
-            clearInterval(timerLogin);
-            type = 'phone';
-          }}>手机号登录</span
-        >&nbsp;｜&nbsp;
-        <span on:click={qrLoginFun}>二维码登录</span>
-      </div>
     </div>
   {/if}
+
+  <div class="type-switch">
+    {#if type !== "phone"}
+      <span
+        on:click={() => {
+          clearInterval(timerLogin);
+          type = "phone";
+        }}
+      >
+        手机号登录
+      </span>
+    {/if}
+
+    {#if type !== "qr"}
+      <span on:click={qrLoginFun}> 二维码登录 </span>
+    {/if}
+
+    {#if type !== "email"}
+      <span
+        on:click={() => {
+          type = "email";
+          clearInterval(timerLogin);
+        }}
+      >
+        邮箱登录
+      </span>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -427,5 +467,12 @@
     color: var(--primary-text-color);
     padding-bottom: constant(safe-area-inset-bottom);
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .type-switch span + .type-switch span::before {
+    content: " | ";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
   }
 </style>

@@ -1,14 +1,23 @@
 <script>
-  import { onMount } from 'svelte';
-  import Lazy from 'svelte-lazy';
-  import { onResume } from 'svelte-stack-router';
-  import { PlayCircleLine, ChatHeartFill, ChatHeartLine } from 'svelte-remixicon';
+  import { onMount } from "svelte";
+  import Lazy from "svelte-lazy";
+  import { onResume, search } from "svelte-stack-router";
+  import {
+    PlayCircleLine,
+    ChatHeartFill,
+    ChatHeartLine,
+  } from "svelte-remixicon";
 
-  import { Button, NavBar } from '../components/base';
-  import SongList from '../components/SongList.svelte';
+  import { Button, NavBar } from "../components/base";
+  import SongList from "../components/SongList.svelte";
 
-  import { playListIdStore, playListDetailStore } from '../store/playList';
-  import { isLoginStore, isLoadingStore, defaultResumableStore, defaultCover } from '../store/common';
+  import { playListIdStore } from "../store/playList";
+  import {
+    isLoginStore,
+    isLoadingStore,
+    defaultResumableStore,
+    defaultCover,
+  } from "../store/common";
   import {
     currentSongStore,
     playStatusStore,
@@ -17,70 +26,67 @@
     isFMPlayStore,
     playRepeatModelStore,
     currentSongQualityStore,
-  } from '../store/play';
-  import { userInfoStore } from '../store/user';
+  } from "../store/play";
+  import { userInfoStore } from "../store/user";
 
-  import { getPlaylistDetail, subscribePlaylist } from '../api/playlist';
-  import { getSongUrl, getSongDetail } from '../api/song';
+  import { getPlaylistDetail, subscribePlaylist } from "../api/playlist";
+  import { getSongUrl, getSongDetail } from "../api/song";
 
-  import { formatTime, Toast, cutArray } from '../utils/common';
+  import { formatTime, Toast, cutArray, parseQuery } from "../utils/common";
 
   let coverDom;
-  $: title = '歌单详情';
-  $: description = '';
+  $: playlistId = null;
+  $: collect = false;
+  $: title = "歌单详情";
+  $: description = "";
   $: alphaNumber = 0; //NavBar透明度的值
   $: songList = [];
   $: coverImgUrl = defaultCover;
-  $: name = '歌单名称';
+  $: name = "歌单名称";
   $: updateTime = new Date().getTime();
   $: creator = {
-    nickname: '创建者',
+    nickname: "创建者",
     avatarUrl: defaultCover,
     id: 0,
   };
-  $: collect = false;
+
+  const { id } = parseQuery($search);
+  playlistId = id;
+
+  onMount(() => {
+    getPlaylistDetailFun();
+  });
 
   onResume(() => {
     if (!$defaultResumableStore) {
       songList = [];
-      if ($isLoginStore) {
-        const ids = JSON.parse(localStorage.getItem('usePlayListIds'));
-        collect = ids.includes($playListIdStore);
-      } else {
-        collect = false;
-      }
       getPlaylistDetailFun();
     }
   });
-  onMount(() => {
-    if ($isLoginStore) {
-      const ids = JSON.parse(localStorage.getItem('usePlayListIds'));
-      collect = ids.includes($playListIdStore);
-    } else {
-      collect = false;
-    }
-    getPlaylistDetailFun();
-  });
+
   async function getPlaylistDetailFun() {
-    const res = await getPlaylistDetail($playListIdStore); //获取歌单详情
+    console.debug("getPlaylistDetail", playlistId);
+    const res = await getPlaylistDetail(playlistId); //获取歌单详情
     if (res.code === 200) {
       isLoadingStore.set(true);
-      let songIdList = [];
-      for (let i = 0; i < res.playlist.trackIds.length; i++) {
-        songIdList.push(res.playlist.trackIds[i].id);
-      }
-      description = res.playlist.description ? res.playlist.description : '';
-      coverImgUrl = res.playlist.coverImgUrl;
+
+      const { trackIds } = res.playlist;
+
       name = title = res.playlist.name;
-      updateTime = res.playlist.updateTime;
       creator = res.playlist.creator;
+      description = res.playlist.description;
+      coverImgUrl = res.playlist.coverImgUrl;
+      updateTime = res.playlist.updateTime;
+
+      const songIdList = trackIds.map((trackIdInfo) => trackIdInfo.id);
       let cutSongIdList = cutArray(songIdList);
       for (let t = 0; t < cutSongIdList.length; t++) {
-        await getSongDetailFun(cutSongIdList[t].join(','));
+        await getSongDetailFun(cutSongIdList[t]);
       }
     }
   }
   async function getSongDetailFun(songIds) {
+    if (Array.isArray(songIds)) songIds = songIds.join(",");
     const res = await getSongDetail(songIds); //所有获取歌曲详情
     if (res.code === 200) {
       songList = songList.concat(res.songs);
@@ -97,58 +103,55 @@
       alphaNumber = 0;
     }
   }
+
+  const playURL = (url) => {
+    window.audioDOM.src = url;
+    window.audioDOM.play();
+  };
+
+  const playSong = (song) => {
+    currentSongStore.set(song);
+    localStorage.setItem("currentSong", JSON.stringify(song));
+    playURL(song.url);
+  };
+
   async function getSongUrlFun(song) {
     const res = await getSongUrl(song.id); //获取歌单url
-    if (res.code === 200) {
-      if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, 'https:');
-        if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
-          currentSongQualityStore.set('试听');
-        } else if (res.data[0].type === 'flac') {
-          currentSongQualityStore.set('FLAC');
-        } else {
-          currentSongQualityStore.set(res.data[0].br);
-        }
-        currentSongStore.set(song);
-        localStorage.setItem('currentSong', JSON.stringify(song));
-        window.audioDOM.src = song.url;
-        window.audioDOM.play();
-        playStatusStore.set(true);
-        if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
-          getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
+    if (res.code !== 200) return;
+    if (res.data[0].url) {
+      song.url = res.data[0].url.replace(/^http:/, "https:");
+      if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
+        currentSongQualityStore.set("试听");
+      } else if (res.data[0].type === "flac") {
+        currentSongQualityStore.set("FLAC");
       } else {
-        Toast(`😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`, 2000);
+        currentSongQualityStore.set(res.data[0].br);
       }
+      playSong(song);
+      playStatusStore.set(true);
+      // if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
+      //   getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
+    } else {
+      Toast(
+        `😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`,
+        2000
+      );
     }
   }
   function playListFun(index) {
-    playRepeatModelStore.set('repeat');
+    playRepeatModelStore.set("repeat");
     isFMPlayStore.set(false);
-    localStorage.setItem('isFMPlay', '0');
+    localStorage.setItem("isFMPlay", "0");
     currentPlayListStore.set(songList);
-    let ids = [];
-    for (let r = 0; r < songList.length; r++) {
-      ids.push(songList[r].id);
-    }
-    localStorage.setItem('localPlayList', JSON.stringify(ids));
+    const ids = songList.map((song) => song.id);
+    localStorage.setItem("localPlayList", JSON.stringify(ids));
+
     currentSongIndexStore.set(index);
     getSongUrlFun($currentPlayListStore[$currentSongIndexStore]);
   }
-  async function lovePlayListFun() {
-    const res = await subscribePlaylist({
-      id: $playListIdStore,
-      t: collect ? 2 : 1,
-    });
+  async function subscribe() {
+    const res = await subscribePlaylist(playlistId, !collect);
     if (res.code === 200) {
-      const ids = JSON.parse(localStorage.getItem('usePlayListIds'));
-      if (collect) {
-        let i = ids.indexOf($playListIdStore);
-        ids.splice(i, 1);
-      } else {
-        ids.unshift($playListIdStore);
-      }
-      playListIdStore.set(ids);
-      localStorage.setItem('usePlayListIds', JSON.stringify(ids));
       collect = !collect;
     }
   }
@@ -160,29 +163,46 @@
   <div
     class="cover-box"
     bind:this={coverDom}
-    style="background: url({coverImgUrl.replace(/^http:/, 'https:') + '?param=450y450'});"
+    style="background: url({coverImgUrl.replace(/^http:/, 'https:') +
+      '?param=450y450'});"
   >
     <div class="cover-bg">
       <div class="cover">
         <Lazy height={140}>
-          <img class="img-cover" src={coverImgUrl.replace(/^http:/, 'https:') + '?param=450y450'} alt="" />
+          <img
+            class="img-cover"
+            src={coverImgUrl.replace(/^http:/, "https:") + "?param=450y450"}
+            alt=""
+          />
         </Lazy>
       </div>
       <div class="info">
         <div class="name">{name}</div>
         <div class="creater">
-          <img class="creatorImg" src={creator.avatarUrl.replace(/^http:/, 'https:') + '?param=60y60'} alt="" />
+          <img
+            class="creatorImg"
+            src={creator.avatarUrl.replace(/^http:/, "https:") + "?param=60y60"}
+            alt=""
+          />
           <span class="creatertext">{creator.nickname}</span>
         </div>
         <div class="update">
-          更新于{formatTime(updateTime)} &#8226 {songList ? songList.length : 0}首
+          更新于{formatTime(updateTime)} &#8226 {songList
+            ? songList.length
+            : 0}首
         </div>
       </div>
     </div>
   </div>
   <div class="desc">{description}</div>
   <div class="btn">
-    <div class="play" style="margin-right: {$isLoginStore && creator.userId != $userInfoStore.account.id ? 20 : 0}px;">
+    <div
+      class="play"
+      style="margin-right: {$isLoginStore &&
+      creator.userId != $userInfoStore.account.id
+        ? 20
+        : 0}px;"
+    >
       <Button type="primary" on:BtnClick={() => playListFun(0)}>
         <span class="icon">
           <PlayCircleLine size="20" style="vertical-align: middle" />
@@ -192,7 +212,7 @@
     </div>
     {#if $isLoginStore && creator.userId != $userInfoStore.account.id}
       <div class="random">
-        <Button type={collect ? 'default' : 'primary'} on:BtnClick={lovePlayListFun}>
+        <Button type={collect ? "default" : "primary"} on:BtnClick={subscribe}>
           <span class="icon">
             {#if collect}
               <ChatHeartLine size="20" style="vertical-align: middle" />
@@ -200,7 +220,7 @@
               <ChatHeartFill size="20" style="vertical-align: middle" />
             {/if}
           </span>
-          {collect ? '取消收藏' : '收藏歌单'}
+          {collect ? "取消收藏" : "收藏歌单"}
         </Button>
       </div>
     {/if}
