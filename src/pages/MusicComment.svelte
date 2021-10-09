@@ -1,15 +1,15 @@
 <script>
-  import { onMount, afterUpdate } from 'svelte';
-  import { ThumbUpLine, ThumbUpFill } from 'svelte-remixicon';
+  import { onMount, afterUpdate } from "svelte";
+  import { ThumbUpLine, ThumbUpFill } from "svelte-remixicon";
 
-  import { NavBar, Divider, Pagination } from '../components/base';
+  import { NavBar, Divider, Pagination } from "../components/base";
 
-  import { getHotComment, likeComment } from '../api/song';
+  import { getHotComment, likeComment } from "../api/song";
 
-  import { currentSongStore } from '../store/play';
-  import { isLoginStore } from '../store/common';
+  import { currentSongStore } from "../store/play";
+  import { isLoginStore } from "../store/common";
 
-  import { formatTime, Toast, tranNumber, emojiToImg } from '../utils/common';
+  import { formatTime, Toast, tranNumber, emojiToImg, imageURL } from "../utils/common";
 
   $: totalCount = 0;
   $: hotComments = [];
@@ -17,9 +17,10 @@
   $: hasMore = true;
   $: offset = 0;
   $: paginationHeight = 0;
-  
+
   onMount(() => {
-    paginationHeight = document.documentElement.clientHeight || document.body.clientHeight - 120;
+    paginationHeight =
+      document.documentElement.clientHeight || document.body.clientHeight - 120;
     getHotCommentFun(0);
   });
   afterUpdate(() => {
@@ -38,7 +39,9 @@
       hotComments = hotComments.concat(res.hotComments);
       hasMore = res.hasMore;
       // 去除云村编辑部的广告
-      hotComments = hotComments.filter(item => item.user.nickname !== '云村评论编辑部');
+      hotComments = hotComments.filter(
+        (item) => item.user.nickname !== "云村评论编辑部"
+      );
       for (let r = 0; r < hotComments.length; r++) {
         //处理 emoji 表情显示
         hotComments[r].content = emojiToImg(hotComments[r].content);
@@ -47,7 +50,12 @@
   }
   async function commentClickFun(commentId, liked) {
     if ($isLoginStore) {
-      const res = await likeComment($currentSongStore.id, commentId, 0, liked ? 0 : 1);
+      const res = await likeComment(
+        $currentSongStore.id,
+        commentId,
+        0,
+        liked ? 0 : 1
+      );
       if (res.code === 200) {
         for (let y = 0; y < hotComments.length; y++) {
           if (hotComments[y].commentId === commentId) {
@@ -56,7 +64,7 @@
         }
       }
     } else {
-      Toast('请登录');
+      Toast("请登录");
     }
   }
 </script>
@@ -83,7 +91,7 @@
         <div class="top">
           <div class="user">
             <div class="cover">
-              <img src={item.user.avatarUrl.replace(/^http:/, 'https:') + '?param=50y50'} alt="" />
+              <img src={imageURL(item.user.avatarUrl, { size: 50 })} alt="" />
             </div>
             <div class="info">
               <div class="name">
@@ -95,12 +103,16 @@
                 {/if}
                 {#if item.user.vipType !== 0}
                   <span class="vip">
-                    <img class="cvip" src={`/images/vip/${item.user.vipRights.redVipLevel}.png`} alt="" />
+                    <img
+                      class="cvip"
+                      src={`/images/vip/${item.user.vipRights.redVipLevel}.png`}
+                      alt=""
+                    />
                   </span>
                 {/if}
               </div>
               <div class="time">
-                {formatTime(item.time, 'yyyy-MM-dd hh:mm:ss')}
+                {formatTime(item.time, "yyyy-MM-dd hh:mm:ss")}
               </div>
             </div>
           </div>
@@ -111,9 +123,15 @@
           >
             <span class="liked-span">
               {#if item.liked}
-                <ThumbUpFill size="12" style="vertical-align: middle;margin-left:4px;" />
+                <ThumbUpFill
+                  size="12"
+                  style="vertical-align: middle;margin-left:4px;"
+                />
               {:else}
-                <ThumbUpLine size="12" style="vertical-align: middle;margin-left:4px" />
+                <ThumbUpLine
+                  size="12"
+                  style="vertical-align: middle;margin-left:4px"
+                />
               {/if}
             </span>{tranNumber(item.likedCount)}
           </div>

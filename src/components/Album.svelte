@@ -4,48 +4,31 @@
   import { push } from "svelte-stack-router";
   import { PlayMiniLine } from "svelte-remixicon";
 
-  import { playListIdStore } from "../store/playList";
   import { isHomePageStore } from "../store/common";
+  import { playListIdStore } from "../store/playList";
+  import { ripple, tranNumber, imageURL } from "../utils/common";
 
-  import { ripple, tranNumber, Confirm } from "../utils/common";
-
+  export let id = 0;
+  export let name = "";
   export let coverImgUrl = "";
   export let playCount = 0;
-  export let name = "";
   export let copywriter = "";
-  export let id = 0;
   export let width = 150;
   export let trackCount = 0;
 
   const noop = () => void 0;
-
   noop("trackCount", trackCount);
 
-  let coverDom;
-  onMount(() => {
-    if (coverDom) {
-      ripple(coverDom);
-    }
-  });
   function goToDetail() {
     isHomePageStore.set(false);
     push(`/playlist?id=${id}`);
   }
 </script>
 
-<div
-  class="cover"
-  on:click={goToDetail}
-  style="width:{width}px"
-  bind:this={coverDom}
->
-  <div class="cover-img" style="width:{width}px;height:{width}px">
+<div class="cover" on:click={goToDetail} style="width:{width}px">
+  <div class="cover-img" style="width:{width}px; height:{width}px">
     <Lazy height={width}>
-      <img
-        src={coverImgUrl.replace(/^http:/, "https:") +
-          `?param=${width * 2}y${width * 2}`}
-        alt=""
-      />
+      <img src={imageURL(coverImgUrl, { width })} alt="" />
     </Lazy>
   </div>
   <div class="play-num">

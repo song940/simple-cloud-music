@@ -61,6 +61,8 @@
     songerListToStr,
     Toast,
     ripple,
+    formatURL,
+    imageURL,
   } from "../utils/common";
 
   export let currentTime = "0:00"; //当前播放时间
@@ -178,7 +180,7 @@
     const res = await getSongUrl(song.id);
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, "https:");
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
           currentSongQualityStore.set("试听");
         } else if (res.data[0].type === "flac") {
@@ -451,10 +453,9 @@
 <div
   bind:this={playBgDom}
   class="play-bg"
-  style="background: url({$currentSongStore.al.picUrl.replace(
-    /^http:/,
-    'https:'
-  ) + '?param=800y800'});top:{$maxPlayToTopStore}"
+  style="background: url({imageURL($currentSongStore.al.picUrl, {
+    height: 800,
+  })});top:{$maxPlayToTopStore}"
 >
   <div class="play">
     <div class="top-box">
@@ -481,8 +482,7 @@
               style="width:{$playStatusStore
                 ? '280px'
                 : '240px'};height:{$playStatusStore ? '280px' : '240px'}"
-              src={$currentSongStore.al.picUrl.replace(/^http:/, "https:") +
-                "?param=800y800"}
+              src={imageURL($currentSongStore.al.picUrl, { width: 800 })}
               alt=""
               class="cover-img"
             />

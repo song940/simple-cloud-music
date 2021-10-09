@@ -1,12 +1,13 @@
 <script>
   import { onMount } from 'svelte';
   import { StackRouter, slide } from 'svelte-stack-router';
-  import isStandalone from 'is-standalone';
 
   import Play from './components/Play.svelte';
   import MiniPlay from './components/MiniPlay.svelte';
   import Loading from './components/Loading.svelte';
   import { TabBar } from './components/base';
+
+  import { formatURL } from './utils/common';
 
   import { getSongUrl, personalFM, getSongDetail } from './api/song';
   import { userPlaylist, userLikedSongsIDs, likedArtists } from './api/user';
@@ -190,7 +191,7 @@
     const res = await getSongUrl(song.id); //获取歌曲url
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, 'https:');
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
           currentSongQualityStore.set('试听');
         } else if (res.data[0].type === 'flac') {

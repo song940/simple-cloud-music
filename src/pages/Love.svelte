@@ -44,7 +44,14 @@
     getSimiSong,
   } from "../api/song";
   import { similarArtists, getSongerDetail } from "../api/songer";
-  import { songerListToStr, Toast, ripple, fullWidth } from "../utils/common";
+  import {
+    songerListToStr,
+    Toast,
+    ripple,
+    fullWidth,
+    formatURL,
+    imageURL,
+  } from "../utils/common";
 
   let dailyRecommendPlayList = []; //每日歌单推荐
   let randomLoveSong = {}; //随机一个喜欢歌曲
@@ -208,7 +215,7 @@
     const res = await getSongUrl(song.id);
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, "https:");
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
           currentSongQualityStore.set("试听");
         } else if (res.data[0].type === "flac") {
@@ -298,8 +305,7 @@
             class="today-img-box"
             style="width: {fullWidth() -
               40}px;background-image:url({$todayListStore.length !== 0
-              ? $todayListStore[0].al.picUrl.replace(/^http:/, 'https:') +
-                '?param=800y800'
+              ? imageURL($todayListStore[0].al.picUrl, { size: 800 })
               : defaultCover})"
           />
           <div class="day-box">
@@ -327,8 +333,7 @@
           class="fm-box"
           on:click={playFMFun}
           style="background:url({$FMPlayStore.album
-            ? $FMPlayStore.album.blurPicUrl.replace(/^http:/, 'https:') +
-              '?param=80y80'
+            ? imageURL($FMPlayStore.album.blurPicUrl, { width: 80 })
             : ''})"
           bind:this={FMDom}
         >
@@ -337,8 +342,7 @@
               <img
                 class="fm-cover-img"
                 src={$FMPlayStore.album
-                  ? $FMPlayStore.album.blurPicUrl.replace(/^http:/, "https:") +
-                    "?param=240y240"
+                  ? imageURL($FMPlayStore.album.blurPicUrl, { size: 240 })
                   : ""}
                 alt=""
               />

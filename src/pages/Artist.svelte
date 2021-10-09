@@ -30,7 +30,7 @@
 
   import { getSongerDetail, getSongerTop, followAArtist } from "../api/songer";
   import { getSongUrl } from "../api/song";
-  import { parseQuery } from "../utils/common";
+  import { formatURL, parseQuery, imageURL } from "../utils/common";
 
   const { id } = parseQuery($search);
 
@@ -110,7 +110,7 @@
     const res = await getSongUrl(song.id); //获取歌单url
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, "https:");
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
           currentSongQualityStore.set("试听");
         } else if (res.data[0].type === "flac") {
@@ -160,7 +160,7 @@
         <Lazy height={140}>
           <img
             class="img-cover"
-            src={coverImgUrl.replace(/^http:/, "https:") + "?param=400y400"}
+            src={imageURL(coverImgUrl, { size: 400 })}
             alt=""
           />
         </Lazy>
@@ -206,7 +206,7 @@
       title={`热门 ${hotSongs.length} 首`}
       isShowRight={hotSongs.length === 50}
       on:TitleClick={() => {
-        coverImgUrlStore.set(coverImgUrl.replace(/^http:/, "https:"));
+        coverImgUrlStore.set(formatURL(coverImgUrl));
         push("/moreSong?name=" + name + "&id=" + currentSongerId);
       }}
     />

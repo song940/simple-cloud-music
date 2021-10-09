@@ -31,7 +31,14 @@
   import { getPlaylistDetail, subscribePlaylist } from "../api/playlist";
   import { getSongUrl, getSongDetail } from "../api/song";
 
-  import { formatTime, Toast, cutArray, parseQuery } from "../utils/common";
+  import {
+    formatTime,
+    Toast,
+    cutArray,
+    parseQuery,
+    formatURL,
+    imageURL,
+  } from "../utils/common";
 
   const { id } = parseQuery($search);
 
@@ -119,7 +126,7 @@
     const res = await getSongUrl(song.id); //获取歌单url
     if (res.code !== 200) return;
     if (res.data[0].url) {
-      song.url = res.data[0].url.replace(/^http:/, "https:");
+      song.url = formatURL(res.data[0].url);
       if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
         currentSongQualityStore.set("试听");
       } else if (res.data[0].type === "flac") {
@@ -163,15 +170,14 @@
   <div
     class="cover-box"
     bind:this={coverDom}
-    style="background: url({coverImgUrl.replace(/^http:/, 'https:') +
-      '?param=450y450'});"
+    style="background: url({imageURL(coverImgUrl, { size: 450 })});"
   >
     <div class="cover-bg">
       <div class="cover">
         <Lazy height={140}>
           <img
             class="img-cover"
-            src={coverImgUrl.replace(/^http:/, "https:") + "?param=450y450"}
+            src={imageURL(coverImgUrl, { size: 450 })}
             alt=""
           />
         </Lazy>
@@ -181,7 +187,7 @@
         <div class="creater">
           <img
             class="creatorImg"
-            src={creator.avatarUrl.replace(/^http:/, "https:") + "?param=60y60"}
+            src={imageURL(creator.avatarUrl, { size: 60 })}
             alt=""
           />
           <span class="creatertext">{creator.nickname}</span>

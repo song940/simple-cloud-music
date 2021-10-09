@@ -13,7 +13,7 @@
 
   import { getSongUrl } from '../api/song';
 
-  import { Toast } from '../utils/common';
+  import { formatURL, Toast } from '../utils/common';
 
   export let songList = [];
   export let isPlayList = false; //是否播放列表，false表示播放单曲
@@ -59,7 +59,7 @@
     const res = await getSongUrl(song.id); //获取歌单url
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, 'https:');
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
           currentSongQualityStore.set('试听');
         } else if (res.data[0].type === 'flac') {

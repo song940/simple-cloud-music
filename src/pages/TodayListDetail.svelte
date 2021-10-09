@@ -20,7 +20,7 @@
   } from "../store/play";
   import { defaultResumableStore } from "../store/common";
 
-  import { Toast } from "../utils/common";
+  import { formatURL, Toast } from "../utils/common";
 
   $: songList = [];
 
@@ -66,7 +66,7 @@
     const res = await getSongUrl(song.id); //获取歌单url
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, "https:");
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
           currentSongQualityStore.set("试听");
         } else if (res.data[0].type === "flac") {

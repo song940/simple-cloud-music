@@ -1,16 +1,21 @@
 <script>
-  import { onMount } from 'svelte';
-  import { push } from 'svelte-stack-router';
-  import { RefreshLine, ArrowRightSLine, PlayFill, HeartPulseFill } from 'svelte-remixicon';
+  import { onMount } from "svelte";
+  import { push } from "svelte-stack-router";
+  import {
+    RefreshLine,
+    ArrowRightSLine,
+    PlayFill,
+    HeartPulseFill,
+  } from "svelte-remixicon";
 
-  import { Button, Title } from '../components/base';
-  import TopTitle from '../components/TopTitle.svelte';
-  import ListGrid from '../components/ListGrid.svelte';
-  import Songer from '../components/Singer.svelte';
+  import { Button, Title } from "../components/base";
+  import TopTitle from "../components/TopTitle.svelte";
+  import ListGrid from "../components/ListGrid.svelte";
+  import Songer from "../components/Singer.svelte";
 
-  import { getSongDetail, getSongUrl } from '../api/song';
-  import { userPlaylist, likedArtists } from '../api/user';
-  import { getPlaylistDetail, intelligenceList } from '../api/playlist';
+  import { getSongDetail, getSongUrl } from "../api/song";
+  import { userPlaylist, likedArtists } from "../api/user";
+  import { getPlaylistDetail, intelligenceList } from "../api/playlist";
 
   import {
     currentSongStore,
@@ -20,11 +25,15 @@
     isFMPlayStore,
     playRepeatModelStore,
     currentSongQualityStore,
-  } from '../store/play';
-  import { isLoginStore, isHomePageStore } from '../store/common';
-  import { userLikeSongIdsStore, userInfoStore, userLikeListIdStore } from '../store/user';
+  } from "../store/play";
+  import { isLoginStore, isHomePageStore } from "../store/common";
+  import {
+    userLikeSongIdsStore,
+    userInfoStore,
+    userLikeListIdStore,
+  } from "../store/user";
 
-  import { Toast, Alert, ripple } from '../utils/common';
+  import { Toast, Alert, ripple, formatURL, imageURL } from "../utils/common";
 
   let loveSongDom;
   let infoDom;
@@ -40,15 +49,14 @@
   $: isRefresh = false;
   $: collectSongers = []; //收藏的歌手
   let topTitleRightList = {
-    type: 'icon',
+    type: "icon",
     path: RefreshLine,
   };
   let newuserLikeSongIdsStore =
-    typeof $userLikeSongIdsStore === 'string' ? JSON.parse($userLikeSongIdsStore) : $userLikeSongIdsStore;
+    typeof $userLikeSongIdsStore === "string"
+      ? JSON.parse($userLikeSongIdsStore)
+      : $userLikeSongIdsStore;
   onMount(() => {
-    if (loveSongDom) {
-      ripple(loveSongDom);
-    }
     if (infoDom) {
       ripple(infoDom);
     }
@@ -60,12 +68,18 @@
       randomFontSize = getRandom(10, 30, 10);
       randomTop = getRandom(0, 200, 10);
       randomleft = getRandom(-50, 300, 10);
-      randomIds = getRandom(0, JSON.parse(localStorage.getItem('useLoveSongIds')).length, 10);
+      randomIds = getRandom(
+        0,
+        JSON.parse(localStorage.getItem("useLoveSongIds")).length,
+        10
+      );
       let ids = [];
       for (let i = 0; i < randomIds.length; i++) {
-        ids.push(JSON.parse(localStorage.getItem('useLoveSongIds'))[randomIds[i]]);
+        ids.push(
+          JSON.parse(localStorage.getItem("useLoveSongIds"))[randomIds[i]]
+        );
       }
-      getSongDetailFun(ids.join(','));
+      getSongDetailFun(ids.join(","));
       userPlaylistFun();
       likedArtistsFun();
     }
@@ -80,7 +94,7 @@
   // 全部歌手
   function collectSongersFun() {
     isHomePageStore.set(false);
-    push('/allCollectSongers');
+    push("/allCollectSongers");
   }
   //获取用户收藏歌单ID列表
   async function userPlaylistFun(login) {
@@ -92,10 +106,10 @@
       //去除喜欢的音乐
       if (
         res.playlist[0].creator.userId === $userInfoStore.account.id &&
-        res.playlist[0].name.substr(-5) === '喜欢的音乐'
+        res.playlist[0].name.substr(-5) === "喜欢的音乐"
       ) {
         userLikeListIdStore.set(res.playlist[0].id);
-        localStorage.setItem('userLikeListId', res.playlist[0].id);
+        localStorage.setItem("userLikeListId", res.playlist[0].id);
         res.playlist.splice(0, 1);
       }
       for (let i = 0; i < res.playlist.length; i++) {
@@ -106,11 +120,13 @@
         }
       }
       //创建的
-      createList = createListL.length >= 10 ? createListL.slice(0, 10) : createListL;
+      createList =
+        createListL.length >= 10 ? createListL.slice(0, 10) : createListL;
       //收藏的
-      collectList = collectListL.length >= 10 ? collectListL.slice(0, 10) : collectListL;
+      collectList =
+        collectListL.length >= 10 ? collectListL.slice(0, 10) : collectListL;
     } else {
-      Toast('获取收藏歌单失败');
+      Toast("获取收藏歌单失败");
     }
   }
   //获取指定数量、指定范围内随机数
@@ -124,10 +140,10 @@
   //所有获取歌曲详情
   async function getSongDetailFun(songIds) {
     isRequsetSucc = false;
-    if (songIds.slice(0, 1) === ',') {
+    if (songIds.slice(0, 1) === ",") {
       songIds = songIds.substr(1);
     }
-    songIds = songIds.replace(',,', ',');
+    songIds = songIds.replace(",,", ",");
     const res = await getSongDetail(songIds, true);
     if (res.code === 200) {
       randomList = res.songs;
@@ -154,22 +170,22 @@
   //去喜欢歌曲页面
   function goToLoveListFun() {
     isHomePageStore.set(false);
-    push('/loveListDetail');
+    push("/loveListDetail");
   }
   //创建歌单全部
   function createTitleFun() {
     isHomePageStore.set(false);
-    push('/myAllPlayList?create');
+    push("/myAllPlayList?create");
   }
   //收藏歌单全部
   function collectTitleFun() {
     isHomePageStore.set(false);
-    push('/myAllPlayList?collect');
+    push("/myAllPlayList?collect");
   }
   //去设置页面
   function toSettingFun() {
     isHomePageStore.set(false);
-    push('/setting');
+    push("/setting");
   }
   //快速播放
   function quickPlayFun(e) {
@@ -182,8 +198,14 @@
     e.preventDefault();
     e.stopPropagation();
     //从喜欢的歌曲id中随机出一首开启心动模式
-    const randomLikeSongId = newuserLikeSongIdsStore[Math.floor(Math.random() * newuserLikeSongIdsStore.length)];
-    const res = await intelligenceList({ id: randomLikeSongId, pid: $userLikeListIdStore });
+    const randomLikeSongId =
+      newuserLikeSongIdsStore[
+        Math.floor(Math.random() * newuserLikeSongIdsStore.length)
+      ];
+    const res = await intelligenceList({
+      id: randomLikeSongId,
+      pid: $userLikeListIdStore,
+    });
     if (res.code === 200) {
       getSongUrl(randomLikeSongId);
       let songsInfoList = [];
@@ -202,7 +224,7 @@
       for (let r = 0; r < songs.length; r++) {
         ids.push(songs[r].id);
       }
-      localStorage.setItem('localPlayList', JSON.stringify(ids));
+      localStorage.setItem("localPlayList", JSON.stringify(ids));
       playListFun(true);
     }
   }
@@ -215,9 +237,9 @@
         songIdList.push(res.playlist.trackIds[i].id);
       }
       if (songIdList.length > 400) {
-        Toast('歌曲较多，拼命加载中，请稍等！', 2000);
+        Toast("歌曲较多，拼命加载中，请稍等！", 2000);
       }
-      getQuickSongDetailFun(songIdList.join(','));
+      getQuickSongDetailFun(songIdList.join(","));
       getSongUrl(songIdList[0]);
     }
   }
@@ -232,7 +254,7 @@
   //播放列表
   function playListFun(isHeart) {
     isFMPlayStore.set(false);
-    localStorage.setItem('isFMPlay', '0');
+    localStorage.setItem("isFMPlay", "0");
     currentSongIndexStore.set(0);
     getSongUrlFun($currentPlayListStore[$currentSongIndexStore], isHeart);
   }
@@ -240,20 +262,22 @@
     const res = await getSongUrl(song.id); //获取歌单url
     if (res.code === 200) {
       if (res.data[0].url) {
-        song.url = res.data[0].url.replace(/^http:/, 'https:');
+        song.url = formatURL(res.data[0].url);
         if (res.data[0].fee === 1 && res.data[0].freeTrialInfo != null) {
-          currentSongQualityStore.set('试听');
-        } else if (res.data[0].type === 'flac') {
-          currentSongQualityStore.set('FLAC');
+          currentSongQualityStore.set("试听");
+        } else if (res.data[0].type === "flac") {
+          currentSongQualityStore.set("FLAC");
         } else {
           currentSongQualityStore.set(res.data[0].br);
         }
         currentSongStore.set(song);
-        localStorage.setItem('currentSong', JSON.stringify(song));
+        localStorage.setItem("currentSong", JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
         playStatusStore.set(true);
-        isHeart ? playRepeatModelStore.set('heart') : playRepeatModelStore.set('repeat');
+        isHeart
+          ? playRepeatModelStore.set("heart")
+          : playRepeatModelStore.set("repeat");
         if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
           getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
       } else {
@@ -280,11 +304,16 @@
       <div class="info-box" on:click={toSettingFun} bind:this={infoDom}>
         <div class="left">
           <div class="avatar">
-            <img src={$userInfoStore.profile.avatarUrl.replace(/^http:/, 'https:') + '?param=180y180'} alt="" />
+            <img
+              src={imageURL($userInfoStore.profile.avatarUrl, { size: 180 })}
+              alt=""
+            />
           </div>
           <div class="info">
             <div class="nicename">{$userInfoStore.profile.nickname}</div>
-            <div class="signature">{$userInfoStore.profile.signature || ''}</div>
+            <div class="signature">
+              {$userInfoStore.profile.signature || ""}
+            </div>
             <div class="tag">
               {#if $userInfoStore.account.vipType !== 0}
                 <span class="vip">
@@ -305,13 +334,17 @@
       </div>
       <div
         class="love-song-box"
-        style="background-image: url({$userInfoStore.profile.avatarUrl.replace(/^http:/, 'https:') +
-          '?param=180y180'});"
+        style="background-image: url({imageURL(
+          $userInfoStore.profile.avatarUrl,
+          { size: 180 }
+        )});"
       >
-        <div class="love-song" on:click={goToLoveListFun} bind:this={loveSongDom}>
+        <div class="love-song" on:click={goToLoveListFun}>
           <div class="love-title">
             <div class="love-title-text">
-              我喜欢的音乐<span class="love-title-number">{newuserLikeSongIdsStore.length}首</span>
+              我喜欢的音乐<span class="love-title-number"
+                >{newuserLikeSongIdsStore.length}首</span
+              >
             </div>
           </div>
           <div class="random">
@@ -324,16 +357,24 @@
                 >
                   <img
                     class="random-img"
-                    style="width:{item.size}px;height:{item.size}px;top:{item.size / 8}px"
-                    src={item.img.replace(/^http:/, 'https:') + '?param=100y100'}
+                    style="width:{item.size}px;height:{item.size}px;top:{item.size /
+                      8}px"
+                    src={imageURL(item.img, { size: 100 })}
                     alt=""
                   />
                   {item.name}
                 </div>
               {/each}
             {:else}
-              <span style="line-height: 100px;position: relative;left: 50%;margin-left: -50px;top:40px">
-                <embed width="100" height="100" src="/images/Ripple.svg" type="image/svg+xml" />
+              <span
+                style="line-height: 100px;position: relative;left: 50%;margin-left: -50px;top:40px"
+              >
+                <embed
+                  width="100"
+                  height="100"
+                  src="/images/Ripple.svg"
+                  type="image/svg+xml"
+                />
               </span>
             {/if}
           </div>
@@ -342,7 +383,10 @@
               <PlayFill size="24" style="vertical-align: middle" />
             </div>
             <div class="quick-btn-item" on:click={heartPlayFun}>
-              <span class:heart-beat={$playRepeatModelStore === 'heart' && $playStatusStore}>
+              <span
+                class:heart-beat={$playRepeatModelStore === "heart" &&
+                  $playStatusStore}
+              >
                 <HeartPulseFill size="24" style="vertical-align: middle" />
               </span>
             </div>
@@ -351,16 +395,31 @@
       </div>
       {#if collectList.length > 0}
         <div class="list-grid">
-          <ListGrid title="收藏的歌单" playList={collectList} iconText="全部" on:titleClick={collectTitleFun} />
+          <ListGrid
+            title="收藏的歌单"
+            playList={collectList}
+            iconText="全部"
+            on:titleClick={collectTitleFun}
+          />
         </div>
       {/if}
       {#if createList.length > 0}
         <div class="list-grid">
-          <ListGrid title="创建的歌单" playList={createList} iconText="全部" on:titleClick={createTitleFun} />
+          <ListGrid
+            title="创建的歌单"
+            playList={createList}
+            iconText="全部"
+            on:titleClick={createTitleFun}
+          />
         </div>
       {/if}
       {#if collectSongers.length > 0}
-        <Title title="收藏的歌手" iconText="全部" isShowRight={true} on:TitleClick={collectSongersFun} />
+        <Title
+          title="收藏的歌手"
+          iconText="全部"
+          isShowRight={true}
+          on:TitleClick={collectSongersFun}
+        />
         <div class="songer-box">
           {#each collectSongers as songer}
             <Songer {songer} coverSize={330} />
@@ -379,7 +438,7 @@
           type="primary"
           on:BtnClick={() => {
             isHomePageStore.set(false);
-            push('/login');
+            push("/login");
           }}
         >
           立即登录

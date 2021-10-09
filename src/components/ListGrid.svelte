@@ -18,16 +18,10 @@
   function setTitleClick() {
     dispatch('titleClick');
   }
-
-  let titleDom;
-
-  onMount(() => {
-    if (titleDom) ripple(titleDom);
-  });
 </script>
 
 <div class="grid">
-  <div class="title" on:click={setTitleClick} bind:this={titleDom}>
+  <div class="title" on:click={setTitleClick} >
     <div class="title-left">{title}</div>
     {#if isShowMore}
       <div class="title-right">

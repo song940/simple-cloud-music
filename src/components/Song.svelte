@@ -7,7 +7,7 @@
   import { userLikeSongIdsStore } from '../store/user';
   import { currentSongStore, playStatusStore } from '../store/play';
 
-  import { ripple, songerListToStr, fullWidth } from '../utils/common';
+  import { ripple, songerListToStr, fullWidth, imageURL } from '../utils/common';
 
   const dispatch = createEventDispatcher();
 
@@ -49,7 +49,7 @@
     <Lazy height={46}>
       <img
         class="img-song"
-        src={customCoverUrl ? customCoverUrl : song.al.picUrl.replace(/^http:/, 'https:') + '?param=100y100'}
+        src={imageURL(customCoverUrl ? customCoverUrl : song.al.picUrl, { width: 100 })}
         alt=""
       />
     </Lazy>

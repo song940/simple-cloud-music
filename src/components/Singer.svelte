@@ -1,16 +1,17 @@
 <script>
-  import { onMount } from 'svelte';
-  import Lazy from 'svelte-lazy';
-  import { push } from 'svelte-stack-router';
-  import { StarSFill } from 'svelte-remixicon';
+  import { onMount } from "svelte";
+  import Lazy from "svelte-lazy";
+  import { push } from "svelte-stack-router";
+  import { StarSFill } from "svelte-remixicon";
 
-  import { isHomePageStore, currentDetailSongerIdStore } from '../store/common';
+  import { isHomePageStore, currentDetailSongerIdStore } from "../store/common";
 
-  import { ripple } from '../utils/common';
+  import { imageURL } from "../utils/common";
 
   export let songer = {};
   export let coverSize = 200;
-  let useLoveSongerIds = JSON.parse(localStorage.getItem('useLoveSongerIds')) || [];
+  let useLoveSongerIds =
+    JSON.parse(localStorage.getItem("useLoveSongerIds")) || [];
   let songerDom;
   onMount(() => {
     // if (songerDom) {
@@ -32,7 +33,7 @@
   {/if}
   <div class="cover">
     <Lazy height={100}>
-      <img src={songer.img1v1Url.replace(/^http:/, 'https:') + '?param=' + coverSize + 'y' + coverSize} alt="" />
+      <img src={imageURL(songer.img1v1Url, { width: coverSize })} alt="" />
     </Lazy>
   </div>
   <div class="name">{songer.name}</div>

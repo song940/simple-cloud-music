@@ -22,6 +22,14 @@ export function getCookies() {
 export const fullWidth = () =>
   localStorage.getItem('fullWidth');
 
+export const formatURL = url => {
+  return url.replace(/^http:/, "https:");
+};
+
+export const imageURL = (url, { size, width = size, height = size || width }) => {
+  return formatURL(url) + `?param=${width}y${height}`
+};
+
 //时间戳转为时间
 //format支持五种格式，'yyyy年MM月dd日'、'yyyyMMdd'、'yyyy-MM-dd'、'yyyy/MM/dd'、'yyyy-MM-dd hh:mm:ss'
 export function formatTime(time, format = 'yyyy年MM月dd日') {
