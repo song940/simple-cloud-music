@@ -183,7 +183,7 @@
       }
       localStorage.setItem('useLoveSongerIds', JSON.stringify(ids));
     } else {
-      alert('获取喜爱歌手失败');
+      Alert('获取喜爱歌手失败');
     }
   }
   async function getSongUrlFun(song, type, index) {
@@ -274,7 +274,7 @@
       userLikeSongIdsStore.set(JSON.stringify(ids));
       localStorage.setItem('useLoveSongIds', JSON.stringify(ids));
     } else {
-      alert('获取喜爱歌曲失败');
+      Alert('获取喜爱歌曲失败');
     }
   }
 </script>
