@@ -1,7 +1,7 @@
 {
   "name": "simple-cloud-music",
   "version": "1.0.0",
-  "author": "DuFu",
+  "author": "Lsong",
   "scripts": {
     "build": "rollup -c --environment NODE_ENV:production",
     "deploy": "rollup -c --environment NODE_ENV:production && node deploy.js",
