@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import Lazy from "svelte-lazy";
   import { onResume, search } from "svelte-stack-router";
   import {
@@ -40,10 +40,8 @@
     imageURL,
   } from "../utils/common";
 
-  const { id } = parseQuery($search);
-
   let coverDom;
-  $: playlistId = id;
+  $: playlistId = 0;
   $: collect = false;
   $: title = "歌单详情";
   $: description = "";
@@ -59,14 +57,19 @@
   };
 
   onMount(() => {
-    getPlaylistDetailFun();
+    setTimeout(() => {
+      const { id } = parseQuery($search);
+      playlistId = id;
+      console.debug("onMount", playlistId);
+      getPlaylistDetailFun();
+    }, 300);
   });
 
   onResume(() => {
+    const { id } = parseQuery($search);
     if (!$defaultResumableStore) {
-      songList = [];
-      const { id } = parseQuery($search);
       playlistId = id;
+      songList = [];
       getPlaylistDetailFun();
     }
   });
@@ -157,6 +160,7 @@
     getSongUrlFun($currentPlayListStore[$currentSongIndexStore]);
   }
   async function subscribe() {
+    console.log("subscribe", playlistId);
     const res = await subscribePlaylist(playlistId, !collect);
     if (res.code === 200) {
       collect = !collect;

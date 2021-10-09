@@ -1,41 +1,37 @@
 {
-  "name": "simple-cloud-music",
-  "version": "1.0.0",
-  "author": "Lsong",
+  "name": "@song940/music",
+  "version": "0.0.0",
   "scripts": {
-    "build": "rollup -c --environment NODE_ENV:production",
-    "deploy": "rollup -c --environment NODE_ENV:production && node deploy.js",
-    "dev": "rollup -c -w --environment NODE_ENV:development",
-    "start": "sirv public",
     "test": "echo test",
-    "host": "HOST=0.0.0.0 npm run dev"
+    "start": "sirv public",
+    "deploy": "./deploy.sh",
+    "build": "rollup -c --environment NODE_ENV:production",
+    "dev": "rollup -c -w --environment NODE_ENV:development"
   },
+  "author": "Lsong",
   "devDependencies": {
-    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^7.1.3",
-    "rollup-plugin-md": "^1.0.1",
+    "@rollup/plugin-replace": "^2.2.0",
     "@types/crypto-js": "^4.0.2",
-    "scp2": "^0.5.0",
-    "sirv-cli": "^0.4.4",
-    "ssh2": "^1.1.0",
     "js-cookie": "^2.2.1",
-    "readline-sync": "^1.4.10",
-    "rollup": "^2.53.3",
+    "rollup": "^2.58.0",
     "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-md": "^1.0.1",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-svelte": "^6.1.1",
-    "rollup-plugin-terser": "^7.0.2"
+    "rollup-plugin-terser": "^7.0.2",
+    "sirv-cli": "latest"
   },
   "dependencies": {
     "axios": "^0.21.1",
     "crypto-js": "^4.1.1",
+    "lyric.js": "^0.0.0",
     "svelte": "^3.42.1",
-    "svelte-remixicon": "^1.0.0",
-    "svelte-stack-router": "^2.4.4",
-    "is-standalone": "^1.0.2",
     "svelte-lazy": "^1.0.9",
-    "svelte-qrcode": "^1.0.0"
+    "svelte-qrcode": "^1.0.0",
+    "svelte-remixicon": "^1.0.0",
+    "svelte-stack-router": "^2.4.4"
   }
 }

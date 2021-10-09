@@ -21,7 +21,7 @@
     currentSongStore,
     currentPlayListStore,
     currentSongIndexStore,
-    maxPlayToTopStore,
+    playerTop,
     FMPlayStore,
     isFMPlayStore,
     FMPlayNextStore,
@@ -109,7 +109,7 @@
       window.audioDOM.play();
       playStatusStore.set(true);
       playIsMaxStore.set(true);
-      maxPlayToTopStore.set("0px");
+      playerTop.set("0px");
     } else {
       isFMPlayStore.set(true);
       localStorage.setItem("isFMPlay", "1");
@@ -152,7 +152,7 @@
         olddailyRecommendPlayList[0].copywriter === "猜你喜欢" &&
         olddailyRecommendPlayList[0].name.indexOf("私人雷达") > -1
       ) {
-        getPlaylistDetailFun(true, olddailyRecommendPlayList);
+        // getPlaylistDetailFun(true, olddailyRecommendPlayList);
       } else {
         dailyRecommendPlayList = olddailyRecommendPlayList;
       }

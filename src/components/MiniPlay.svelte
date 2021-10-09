@@ -9,7 +9,7 @@
     currentSongStore,
     currentPlayListStore,
     currentSongIndexStore,
-    maxPlayToTopStore,
+    playerTop,
     isFMPlayStore,
     FMPlayNextStore,
     FMPlayStore,
@@ -20,7 +20,13 @@
 
   import { getSongUrl, personalFM } from "../api/song";
 
-  import { formatURL, imageURL, ripple, songerListToStr, Toast } from "../utils/common";
+  import {
+    formatURL,
+    imageURL,
+    ripple,
+    songerListToStr,
+    Toast,
+  } from "../utils/common";
 
   export let currentTimeLong =
     window.audioDOM.currentTime / window.audioDOM.duration; //进度条长度
@@ -40,7 +46,7 @@
 
   function handleMax() {
     playIsMaxStore.set(true);
-    maxPlayToTopStore.set("0px");
+    playerTop.set("0px");
   }
 
   function miniPlayFun() {

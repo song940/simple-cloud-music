@@ -3,7 +3,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
-import replace from 'rollup-plugin-replace';
+import replace from '@rollup/plugin-replace';
 import json from '@rollup/plugin-json';
 import md from 'rollup-plugin-md';
 
@@ -31,6 +31,7 @@ export default {
     // production && insertHashToIndex(),
     json(),
     replace({
+      preventAssignment: true,
       ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
     }),
     // If you have external dependencies installed from

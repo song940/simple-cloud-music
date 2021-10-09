@@ -1,5 +1,5 @@
 import Home from './pages/Home.svelte';
-import PlayListDetail from './pages/PlayListDetail.svelte';
+import PlayListDetail from './pages/PlayList.svelte';
 import Login from './pages/Login.svelte';
 import TodayListDetail from './pages/TodayListDetail.svelte';
 import LoveListDetail from './pages/LoveListDetail.svelte';
@@ -8,14 +8,13 @@ import Setting from './pages/Setting.svelte';
 import Search from './pages/Search.svelte';
 import Artist from './pages/Artist.svelte';
 import BrSelect from './pages/BrSelect.svelte';
-import MusicComment from './pages/MusicComment.svelte';
+import MusicComment from './pages/Comments.svelte';
 import AllCollectSongers from './pages/AllCollectSongers.svelte';
 import SongerDesc from './pages/SongerDesc.svelte';
 import MoreSonger from './pages/MoreSonger.svelte';
 import MoreList from './pages/MoreList.svelte';
 import MoreSong from './pages/MoreSong.svelte';
 import About from './pages/About.svelte';
-import Version from './pages/Version.svelte';
 
 const routes = {
   '/playlist': PlayListDetail,
@@ -34,7 +33,6 @@ const routes = {
   '/moreList': MoreList,
   '/moreSong': MoreSong,
   '/about': About,
-  '/version': Version,
   '*': Home,
 };
 

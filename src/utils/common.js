@@ -123,26 +123,27 @@ export function scrollAnimate(obj, target, time = 500) {
  */
 export function scrollSmoothTo(dom, position) {
   if (!window.requestAnimationFrame) {
-    window.requestAnimationFrame = function (callback, element) {
+    window.requestAnimationFrame = (callback, element) => {
       return setTimeout(callback, 17);
     };
   }
-  // 当前滚动高度
-  var scrollTop = dom.scrollTop;
-  // 滚动step方法
-  var step = function () {
-    // 距离目标滚动距离
-    var distance = position - scrollTop;
-    // 目标滚动位置
-    scrollTop = scrollTop + distance / 10;
-    if (Math.abs(distance) < 1) {
+  let scrollTop = dom.scrollTop;
+  let distance = Math.abs(position - scrollTop);
+  let direction = position - scrollTop > 0 ? 1 : -1;
+  let split = distance / 60;
+  (function loop() {
+    if (position === scrollTop) return;
+    split *= direction;
+    scrollTop += split;
+    distance -= Math.abs(split);
+    // console.log(split, scrollTop, distance, position);
+    if (0 >= distance) {
       dom.scrollTo(0, position);
     } else {
       dom.scrollTo(0, scrollTop);
-      requestAnimationFrame(step);
+      requestAnimationFrame(loop);
     }
-  };
-  step();
+  })();
 }
 
 //界面toast提示

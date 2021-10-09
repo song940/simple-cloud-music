@@ -60,7 +60,7 @@
     if (infoDom) {
       ripple(infoDom);
     }
-    allOnMount();
+    // allOnMount();
   });
   //初始化页面事件
   function allOnMount() {

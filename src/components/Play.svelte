@@ -21,9 +21,9 @@
     HeartPulseLine,
   } from "svelte-remixicon";
 
-  import { Picker, Progress } from "../components/base";
   import Lyric from "../components/Lyric.svelte";
   import SongList from "../components/SongList.svelte";
+  import { Picker, Progress } from "../components/base";
 
   import {
     getSongUrl,
@@ -38,13 +38,13 @@
     currentSongStore,
     currentPlayListStore,
     currentSongIndexStore,
-    maxPlayToTopStore,
+    playerTop,
     playIsMaxStore,
     isFMPlayStore,
     FMPlayNextStore,
     FMPlayStore,
     currentLyricStore,
-    mainCoverTypeStore,
+    playerShowType,
     playRepeatModelStore,
     currentSongQualityStore,
   } from "../store/play";
@@ -97,10 +97,18 @@
   $: PickerShow = false;
   $: songers = $currentSongStore.ar;
 
-  onMount(() => {
-    maxPlayToTopStore.set(window.screen.height + "px");
+  const setMin = () => {
     playIsMaxStore.set(false);
-    mainCoverTypeStore.set("cover");
+    playerTop.set(window.screen.height + "px");
+  };
+
+  const setMax = () => {
+    playerTop.set("0px");
+  };
+
+  onMount(() => {
+    setMin();
+    playerShowType.set("cover");
     if (lyricDom) ripple(lyricDom);
     if (listDom) ripple(listDom);
     if (loveDom) ripple(loveDom);
@@ -137,21 +145,20 @@
       timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
   }
   function handleDown() {
-    maxPlayToTopStore.set(window.screen.height + "px");
-    playIsMaxStore.set(false);
-    mainCoverTypeStore.set("cover");
+    setMin();
+    playerShowType.set("cover");
   }
   //切换下一首
   function playNextFun() {
     if ($isFMPlayStore) {
       //正在私人FM
       getSongUrlFun($FMPlayNextStore, "next");
-      mainCoverTypeStore.set("cover");
+      playerShowType.set("cover");
     } else {
       if ($currentSongIndexStore === $currentPlayListStore.length - 1) {
         Toast("已经是最后一首了");
       } else {
-        if ($mainCoverTypeStore === "lyric") mainCoverTypeStore.set("cover");
+        if ($playerShowType === "lyric") playerShowType.set("cover");
         //随机模式
         if ($playRepeatModelStore === "shuffle") {
           // Math.floor(Math.random() * 21);
@@ -171,7 +178,7 @@
     if ($currentSongIndexStore === 0) {
       Toast("已经是第一首了");
     } else {
-      if ($mainCoverTypeStore === "lyric") mainCoverTypeStore.set("cover");
+      if ($playerShowType === "lyric") playerShowType.set("cover");
       getSongUrlFun($currentPlayListStore[$currentSongIndexStore - 1], "pre");
     }
   }
@@ -272,61 +279,43 @@
     }
   }
   //切换歌词显示
-  function changeLyricFun() {
-    if ($mainCoverTypeStore !== "lyric") {
-      getlyricFun();
+  function showLyric() {
+    if ($playerShowType !== "lyric") {
+      requestLyric();
     } else {
-      mainCoverTypeStore.set("cover");
+      playerShowType.set("cover");
     }
   }
   //请求歌词
-  async function getlyricFun() {
+  async function requestLyric() {
     if ($currentLyricStore.songId === $currentSongStore.id) {
-      mainCoverTypeStore.set("lyric");
-    } else {
-      lyricLoading = true;
-      const res = await getLyric($currentSongStore.id);
-      if (res.code === 200) {
-        lyricLoading = false;
-        if (res.nolyric || res.needDesc || res.lrc.lyric === "") {
-          Toast("🙈🙈么有歌词哦!!🙈🙈");
-          currentLyricStore.set({
-            songId: null,
-            lyric: null,
-            tlyric: null,
-          });
-          localStorage.setItem(
-            "currentLyric",
-            JSON.stringify({
-              songId: null,
-              lyric: null,
-              tlyric: null,
-            })
-          );
-        } else {
-          currentLyricStore.set({
-            songId: $currentSongStore.id,
-            lyric: res.lrc.lyric,
-            tlyric: res.tlyric.lyric,
-          });
-          localStorage.setItem(
-            "currentLyric",
-            JSON.stringify({
-              songId: $currentSongStore.id,
-              lyric: res.lrc.lyric,
-              tlyric: res.tlyric.lyric,
-            })
-          );
-          mainCoverTypeStore.set("lyric");
-        }
-      } else {
-        lyricLoading = false;
+      playerShowType.set("lyric");
+      return;
+    }
+    lyricLoading = true;
+    const res = await getLyric($currentSongStore.id);
+    lyricLoading = false;
+    if (res.code === 200) {
+      if (res.nolyric || res.needDesc || res.lrc.lyric === "") {
+        currentLyricStore.set({
+          songId: null,
+          lyric: null,
+          tlyric: null,
+        });
+        Toast("🙈🙈么有歌词哦!!🙈🙈");
+        return;
       }
     }
+    playerShowType.set("lyric");
+    currentLyricStore.set({
+      songId: $currentSongStore.id,
+      lyric: res.lrc.lyric,
+      tlyric: res.tlyric.lyric,
+    });
   }
   //切换播放列表显示
   function changeListFun() {
-    if ($mainCoverTypeStore !== "list") {
+    if ($playerShowType !== "list") {
       if ($currentSongIndexStore > 200) {
         let r = confirm(
           "当前播放歌曲在播放列表中位置超过 200，显示播放列表将自动滚动至当前歌曲，极短时间内渲染大量页面会严重消耗设备性能😈😈。可以考虑到歌单详情页（已做了懒加载）查看列表哦😅。🤔确定显示播放列表吗🤔？"
@@ -334,13 +323,13 @@
         if (r === true) {
           if ($currentPlayListStore.length > 200) {
             Toast("列表太长，等我加载...🥱🥱", 1000, () => {
-              mainCoverTypeStore.set("list");
+              playerShowType.set("list");
               setTimeout(() => {
                 playListDom.scrollTop = 60 * $currentSongIndexStore;
               }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
             });
           } else {
-            mainCoverTypeStore.set("list");
+            playerShowType.set("list");
             setTimeout(() => {
               playListDom.scrollTop = 60 * $currentSongIndexStore;
             }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
@@ -349,20 +338,20 @@
       } else {
         if ($currentPlayListStore.length > 200) {
           Toast("列表太长，等我加载...🥱🥱", 1000, () => {
-            mainCoverTypeStore.set("list");
+            playerShowType.set("list");
             setTimeout(() => {
               playListDom.scrollTop = 60 * $currentSongIndexStore;
             }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
           });
         } else {
-          mainCoverTypeStore.set("list");
+          playerShowType.set("list");
           setTimeout(() => {
             playListDom.scrollTop = 60 * $currentSongIndexStore;
           }, 100); //做延迟处理，渲染页面之后才能获取DOM高度，计算滚动高度
         }
       }
     } else {
-      mainCoverTypeStore.set("cover");
+      playerShowType.set("cover");
     }
   }
   // 切换播放循环模式
@@ -381,16 +370,15 @@
   }
   //歌词区域点击
   function lyricClickFun() {
-    mainCoverTypeStore.set("cover");
+    playerShowType.set("cover");
   }
   //去歌曲评论页面
-  function toCommentFun() {
-    mainCoverTypeStore.set("cover");
-    maxPlayToTopStore.set(window.screen.height + "px");
-    playIsMaxStore.set(false);
+  function gotoComments() {
+    playerShowType.set("cover");
+    // setMin();
     if (!($location === "/comments")) {
       if ($isHomePageStore) isHomePageStore.set(false);
-      push("/comments");
+      push(`/comments?id=${$currentSongStore.id}`);
     }
   }
   //滑动开始
@@ -398,7 +386,7 @@
     touchStartTime = new Date().getTime();
     touchStartY = e.changedTouches[0].clientY;
     touchMoveToTop = 0;
-    maxPlayToTopStore.set(touchMoveToTop + "px");
+    playerTop.set(touchMoveToTop + "px");
   }
   //滑动结束
   function touchEnd(e) {
@@ -410,32 +398,29 @@
     // 速度小于0.3，不判断为最小化；0.3-0.8之间，如果移动距离超过250，最小化，不到250则不触发最小化。
     if (touchMoveToTop >= window.screen.height / 2) {
       //最小化
-      maxPlayToTopStore.set(window.screen.height + "px");
-      playIsMaxStore.set(false);
-      mainCoverTypeStore.set("cover");
+      setMin();
+      playerShowType.set("cover");
     } else if (touchEndY - touchStartY <= 100) {
-      maxPlayToTopStore.set("0px");
+      setMax();
     } else if (
       touchEndY - touchStartY > 100 &&
       (touchEndY - touchStartY) / (touchEndTime - touchStartTime) >= 0.8
     ) {
-      maxPlayToTopStore.set(window.screen.height + "px");
-      playIsMaxStore.set(false);
-      mainCoverTypeStore.set("cover");
+      setMin();
+      playerShowType.set("cover");
     } else if (
       touchEndY - touchStartY > 100 &&
       (touchEndY - touchStartY) / (touchEndTime - touchStartTime) <= 0.3
     ) {
-      maxPlayToTopStore.set("0px");
+      setMax();
     } else if (
       0.3 < (touchEndY - touchStartY) / (touchEndTime - touchStartTime) < 0.8 &&
       touchEndY - touchStartY > 250
     ) {
-      maxPlayToTopStore.set(window.screen.height + "px");
-      playIsMaxStore.set(false);
-      mainCoverTypeStore.set("cover");
+      setMin();
+      playerShowType.set("cover");
     } else {
-      maxPlayToTopStore.set("0px");
+      setMax();
     }
   }
   //滑动过程
@@ -445,7 +430,7 @@
     e.stopPropagation();
     if (parseFloat(playBgDom.style["top"]) >= 0) {
       touchMoveToTop = e.changedTouches[0].clientY - touchStartY;
-      maxPlayToTopStore.set(touchMoveToTop + "px");
+      playerTop.set(touchMoveToTop + "px");
     }
   }
 </script>
@@ -455,7 +440,7 @@
   class="play-bg"
   style="background: url({imageURL($currentSongStore.al.picUrl, {
     height: 800,
-  })});top:{$maxPlayToTopStore}"
+  })});top:{$playerTop}"
 >
   <div class="play">
     <div class="top-box">
@@ -468,7 +453,7 @@
       >
         <div class="down-line" />
       </div>
-      {#if $mainCoverTypeStore === "cover"}
+      {#if $playerShowType === "cover"}
         <div
           class="cover"
           on:click={handleDown}
@@ -488,11 +473,11 @@
             />
           </div>
         </div>
-      {:else if $mainCoverTypeStore === "lyric"}
+      {:else if $playerShowType === "lyric"}
         <div class="lyric-cover" on:click={lyricClickFun}>
           <Lyric maxHeight="54vh" />
         </div>
-      {:else if !$isFMPlayStore && $mainCoverTypeStore === "list"}
+      {:else if !$isFMPlayStore && $playerShowType === "list"}
         <div class="song-list-box" bind:this={playListDom}>
           <SongList songList={$currentPlayListStore} />
         </div>
@@ -514,9 +499,8 @@
             on:click={() => {
               if (songers.length === 1) {
                 if (songers[0].id != 0) {
-                  mainCoverTypeStore.set("cover");
-                  maxPlayToTopStore.set(window.screen.height + "px");
-                  playIsMaxStore.set(false);
+                  playerShowType.set("cover");
+                  setMin();
                   isHomePageStore.set(false);
                   currentDetailSongerIdStore.set(songers[0].id);
                   push(`/artist?id=${songers[0].id}`);
@@ -548,9 +532,8 @@
             <div
               class="time-item quality"
               on:click={() => {
-                mainCoverTypeStore.set("cover");
-                maxPlayToTopStore.set(window.screen.height + "px");
-                playIsMaxStore.set(false);
+                playerShowType.set("cover");
+                setMin();
                 if (!($location === "/brSelect")) {
                   if ($isHomePageStore) isHomePageStore.set(false);
                   push("/brSelect");
@@ -575,11 +558,7 @@
       </div>
       <div class="tool">
         <!-- 歌词 -->
-        <div
-          class="tool-item lyric"
-          on:click={changeLyricFun}
-          bind:this={lyricDom}
-        >
+        <div class="tool-item lyric" on:click={showLyric} bind:this={lyricDom}>
           {#if lyricLoading}
             <span style="line-height: 30px;">
               <embed
@@ -589,7 +568,7 @@
                 type="image/svg+xml"
               />
             </span>
-          {:else if $mainCoverTypeStore === "lyric"}
+          {:else if $playerShowType === "lyric"}
             <ChatQuoteFill size="20" style="vertical-align: middle" />
           {:else}
             <ChatQuoteLine size="20" style="vertical-align: middle" />
@@ -602,7 +581,7 @@
             on:click={changeListFun}
             bind:this={listDom}
           >
-            {#if $mainCoverTypeStore === "list"}
+            {#if $playerShowType === "list"}
               <PlayListFill size="20" style="vertical-align: middle" />
             {:else}
               <PlayListLine size="20" style="vertical-align: middle" />
@@ -685,7 +664,7 @@
         {#if $isShowCommentStore != "0"}
           <div
             class="tool-item comment"
-            on:click={toCommentFun}
+            on:click={gotoComments}
             bind:this={commentDom}
           >
             <Message2Line size="20" style="vertical-align: middle" />
@@ -752,11 +731,11 @@
     </div>
   </div>
 </div>
-{#if $playIsMaxStore && 0 < parseFloat($maxPlayToTopStore) < window.screen.height - 40}
+{#if $playIsMaxStore && 0 < parseFloat($playerTop) < window.screen.height - 40}
   <div
     class="play-mask"
     style="background-color: rgba(0, 0, 0, {0.9 -
-      parseFloat($maxPlayToTopStore) / window.screen.height});"
+      parseFloat($playerTop) / window.screen.height});"
   />
 {/if}
 
@@ -769,9 +748,8 @@
   on:PickerClick={(e) => {
     const { item: artist } = e.detail;
     if (artist.id != 0) {
-      mainCoverTypeStore.set("cover");
-      maxPlayToTopStore.set(window.screen.height + "px");
-      playIsMaxStore.set(false);
+      playerShowType.set("cover");
+      setMin();
       isHomePageStore.set(false);
       currentDetailSongerIdStore.set(artist.id);
       push(`/artist?id=${artist.id}`);

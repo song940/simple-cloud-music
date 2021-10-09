@@ -1,15 +1,19 @@
 <script>
   import { onMount, afterUpdate } from "svelte";
+  import { search } from "svelte-stack-router";
   import { ThumbUpLine, ThumbUpFill } from "svelte-remixicon";
 
-  import { NavBar, Divider, Pagination } from "../components/base";
-
-  import { getHotComment, likeComment } from "../api/song";
-
-  import { currentSongStore } from "../store/play";
   import { isLoginStore } from "../store/common";
-
-  import { formatTime, Toast, tranNumber, emojiToImg, imageURL } from "../utils/common";
+  import { getHotComment, likeComment } from "../api/song";
+  import { NavBar, Divider, Pagination } from "../components/base";
+  import {
+    formatTime,
+    Toast,
+    tranNumber,
+    emojiToImg,
+    imageURL,
+    parseQuery,
+  } from "../utils/common";
 
   $: totalCount = 0;
   $: hotComments = [];
@@ -19,12 +23,16 @@
   $: paginationHeight = 0;
 
   onMount(() => {
+    const { id } = parseQuery($search);
+    currentSongId = id;
     paginationHeight =
       document.documentElement.clientHeight || document.body.clientHeight - 120;
     getHotCommentFun(0);
   });
   afterUpdate(() => {
-    if (currentSongId !== $currentSongStore.id) {
+    const { id } = parseQuery($search);
+    if (id && currentSongId !== id) {
+      currentSongId = id;
       hotComments = [];
       offset = 0;
       hasMore = true;
@@ -32,8 +40,8 @@
     }
   });
   async function getHotCommentFun(offset) {
-    currentSongId = $currentSongStore.id;
-    const res = await getHotComment($currentSongStore.id, offset);
+    console.debug('getHotCommentFun', currentSongId)
+    const res = await getHotComment(currentSongId, offset);
     if (res.code === 200) {
       totalCount = res.total;
       hotComments = hotComments.concat(res.hotComments);
@@ -48,23 +56,16 @@
       }
     }
   }
+  //
   async function commentClickFun(commentId, liked) {
-    if ($isLoginStore) {
-      const res = await likeComment(
-        $currentSongStore.id,
-        commentId,
-        0,
-        liked ? 0 : 1
-      );
-      if (res.code === 200) {
-        for (let y = 0; y < hotComments.length; y++) {
-          if (hotComments[y].commentId === commentId) {
-            hotComments[y].liked = !liked;
-          }
+    if (!$isLoginStore) return Toast("请登录");
+    const res = await likeComment(currentSongId, commentId, 0, liked ? 0 : 1);
+    if (res.code === 200) {
+      for (let y = 0; y < hotComments.length; y++) {
+        if (hotComments[y].commentId === commentId) {
+          hotComments[y].liked = !liked;
         }
       }
-    } else {
-      Toast("请登录");
     }
   }
 </script>

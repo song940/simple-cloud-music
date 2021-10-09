@@ -12,10 +12,6 @@
   function setTitleClick() {
     dispatch('TitleClick');
   }
-
-  onMount(() => {
-    if (titleDom) ripple(titleDom);
-  });
 </script>
 
 <div class="title" on:click={setTitleClick} bind:this={titleDom}>

@@ -39,8 +39,10 @@ export const currentPlayListStore = writable([
 ]);
 //是否在加载歌曲
 export const isLoadingSongStore = writable(false);
-//全屏播放器顶部距离页面顶部的距离
-export const maxPlayToTopStore = writable('100%');
+/**
+ * 全屏播放器顶部距离页面顶部的距离
+ */
+export const playerTop = writable('100%');
 
 //是否正在私人FM播放
 export const isFMPlayStore = writable(localStorage.getItem('isFMPlay') === '1' ? true : false);
@@ -63,7 +65,7 @@ export const currentLyricStore = writable(
     }
 );
 //播放器主要区域显示的内容，cover--歌曲封面；list--播放列表；lyric--歌词
-export const mainCoverTypeStore = writable('cover');
+export const playerShowType = writable('cover');
 //播放模式，repeat--列表循环，repeatOnce--单曲循环，shuffle--随机，heart--心动模式
 export const playRepeatModelStore = writable('repeat');
 //当前歌曲码率
