@@ -5,12 +5,12 @@
 
   import {
     playIsMaxStore,
-    playStatusStore,
+    isPlaying,
     currentSongStore,
     currentPlayListStore,
     currentSongIndexStore,
     playerTop,
-    isFMPlayStore,
+    isFMPlaying,
     FMPlayNextStore,
     FMPlayStore,
     playRepeatModelStore,
@@ -44,15 +44,15 @@
     if (nextDom) ripple(nextDom);
   });
 
-  function handleMax() {
+  function showPlayer() {
     playIsMaxStore.set(true);
     playerTop.set("0px");
   }
 
   function miniPlayFun() {
-    if ($playStatusStore) {
+    if ($isPlaying) {
       window.audioDOM.pause();
-      playStatusStore.set(false);
+      isPlaying.set(false);
       localStorage.setItem("pauseTimes", new Date().getTime());
     } else {
       //解决长时间不播放URL失效问题(暂定30分钟过期)
@@ -65,11 +65,11 @@
         window.audioDOM.src = `https://music.163.com/song/media/outer/url?id=${$currentSongStore.id}.mp3`;
       }
       window.audioDOM.play();
-      playStatusStore.set(true);
+      isPlaying.set(true);
     }
   }
   function miniNextFun() {
-    if ($isFMPlayStore) {
+    if ($isFMPlaying) {
       //正在私人FM
       getSongUrlFun($FMPlayNextStore, "fm");
     } else {
@@ -104,8 +104,8 @@
         }
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
-        if ($isFMPlayStore) {
+        isPlaying.set(true);
+        if ($isFMPlaying) {
           //私人FM
           personalFMFun();
           FMPlayStore.set(song);
@@ -148,7 +148,7 @@
   //播放私人FM
   function playFMFun() {
     getSongUrlFun(FMSong);
-    isFMPlayStore.set(true);
+    isFMPlaying.set(true);
     localStorage.setItem("isFMPlay", "1");
     localStorage.setItem("FMPlay", JSON.stringify(FMSong));
     personalFMFun(true);
@@ -197,14 +197,14 @@
   <div
     class="progress"
     style="width:{(currentTimeLong / 100) * window.screen.width}px;"
-    on:click={handleMax}
+    on:click={showPlayer}
   />
-  <div class="cover" on:click={handleMax} style="left:{moveLong}px">
+  <div class="cover" on:click={showPlayer} style="left:{moveLong}px">
     <Lazy height={50}>
       <img src={imageURL($currentSongStore.al.picUrl, { width: 800 })} alt="" />
     </Lazy>
   </div>
-  <div class="info" on:click={handleMax} style="left:{moveLong}px">
+  <div class="info" on:click={showPlayer} style="left:{moveLong}px">
     <div class="name">
       {$currentSongStore.name}
       <span class="alia">
@@ -223,7 +223,7 @@
     </div>
   </div>
   <div class="pause" on:click={miniPlayFun} bind:this={pauseDom}>
-    {#if $playStatusStore}
+    {#if $isPlaying}
       <PauseFill size="40" style="vertical-align: middle;height:57px" />
     {:else}
       <PlayFill size="40" style="vertical-align: middle;height:57px" />

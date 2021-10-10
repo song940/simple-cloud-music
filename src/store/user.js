@@ -7,15 +7,9 @@ export const userInfoStore = writable(
     : {}
 );
 
+
 //用户喜欢的音乐IDs
-export const userLikeSongIdsStore = writable(
-  JSON.parse(localStorage.getItem("useLoveSongIds"))
-    ? JSON.parse(localStorage.getItem("useLoveSongIds"))
-    : []
-);
+export const userLikedArtistsStore = writable([]);
+export const userLikedSongIdsStore = writable([]);
 //我喜欢的音乐歌单ID
-export const userLikeListIdStore = writable(
-  JSON.parse(localStorage.getItem("userLikeListId"))
-    ? JSON.parse(localStorage.getItem("userLikeListId"))
-    : ''
-);
+export const userLikedPlaylistStore = writable([]);

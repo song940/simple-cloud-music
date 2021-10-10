@@ -7,13 +7,13 @@
   import SongList from '../components/SongList.svelte';
 
   import { isHomePageStore, isLoadingStore, defaultResumableStore } from '../store/common';
-  import { userInfoStore, userLikeListIdStore } from '../store/user';
+  import { userInfoStore, userLikedPlaylistStore } from '../store/user';
   import {
     currentSongStore,
-    playStatusStore,
+    isPlaying,
     currentPlayListStore,
     currentSongIndexStore,
-    isFMPlayStore,
+    isFMPlaying,
     playRepeatModelStore,
     currentSongQualityStore,
   } from '../store/play';
@@ -78,7 +78,7 @@
   }
   //请求歌单详情
   async function getPlaylistDetailFun() {
-    const res = await getPlaylistDetail($userLikeListIdStore); //获取歌单详情
+    const res = await getPlaylistDetail($userLikedPlaylistStore); //获取歌单详情
     if (res.code === 200) {
       isLoadingStore.set(true);
       let songIdList = [];
@@ -103,7 +103,7 @@
   }
   //顺序播放
   function playListFun(index) {
-    isFMPlayStore.set(false);
+    isFMPlaying.set(false);
     localStorage.setItem('isFMPlay', '0');
     currentPlayListStore.set(songList);
     let ids = [];
@@ -117,7 +117,7 @@
   }
   //随机播放
   function playListShuffleFun() {
-    isFMPlayStore.set(false);
+    isFMPlaying.set(false);
     localStorage.setItem('isFMPlay', '0');
     currentPlayListStore.set(songList);
     let ids = [];
@@ -146,7 +146,7 @@
         localStorage.setItem('currentSong', JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
+        isPlaying.set(true);
         if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
           getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
       } else {

@@ -4,8 +4,8 @@
   import { HeartFill } from 'svelte-remixicon';
 
   import { isLoginStore } from '../store/common';
-  import { userLikeSongIdsStore } from '../store/user';
-  import { currentSongStore, playStatusStore } from '../store/play';
+  import { userLikedSongIdsStore } from '../store/user';
+  import { currentSongStore, isPlaying } from '../store/play';
 
   import { ripple, songerListToStr, fullWidth, imageURL } from '../utils/common';
 
@@ -33,7 +33,7 @@
   on:click={() => {
     if (song.id === $currentSongStore.id) {
       window.audioDOM.play();
-      playStatusStore.set(true);
+      isPlaying.set(true);
     } else {
       setSongClick(index);
     }
@@ -41,7 +41,7 @@
   bind:this={songDom}
 >
   <div class="love-span">
-    {#if $isLoginStore && $userLikeSongIdsStore.includes(song.id)}
+    {#if $isLoginStore && $userLikedSongIdsStore.includes(song.id)}
       <HeartFill size="16" style="vertical-align: middle" />
     {/if}
   </div>
@@ -53,7 +53,7 @@
         alt=""
       />
     </Lazy>
-    {#if song.id === $currentSongStore.id && $playStatusStore}
+    {#if song.id === $currentSongStore.id && $isPlaying}
       <div class="song-play">
         <div class="pull_down pull_down1" />
         <div class="pull_down pull_down2" />
@@ -61,7 +61,7 @@
         <div class="pull_down pull_down4" />
       </div>
     {/if}
-    {#if song.id === $currentSongStore.id && !$playStatusStore}
+    {#if song.id === $currentSongStore.id && !$isPlaying}
       <div class="song-no-play">
         <div class="no_pull_down" />
         <div class="no_pull_down" />

@@ -23,6 +23,7 @@ export const fullWidth = () =>
   localStorage.getItem('fullWidth');
 
 export const formatURL = url => {
+  if(!url) return url;
   return url.replace(/^http:/, "https:");
 };
 

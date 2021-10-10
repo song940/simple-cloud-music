@@ -18,7 +18,7 @@ import About from './pages/About.svelte';
 
 const routes = {
   '/playlist': PlayListDetail,
-  '/todayListDetail': TodayListDetail,
+  '/daily': TodayListDetail,
   '/loveListDetail': LoveListDetail,
   '/myAllPlayList': MyAllPlayList,
   '/login': Login,

@@ -27,7 +27,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "crypto-js": "^4.1.1",
-    "lyric.js": "^0.0.0",
+    "lyric.js": "^0.0.4",
     "svelte": "^3.42.1",
     "svelte-lazy": "^1.0.9",
     "svelte-qrcode": "^1.0.0",

@@ -1,12 +1,10 @@
 <script>
-  import { onMount } from "svelte";
   import Lazy from "svelte-lazy";
   import { push } from "svelte-stack-router";
   import { PlayMiniLine } from "svelte-remixicon";
 
   import { isHomePageStore } from "../store/common";
-  import { playListIdStore } from "../store/playList";
-  import { ripple, tranNumber, imageURL } from "../utils/common";
+  import { tranNumber, imageURL } from "../utils/common";
 
   export let id = 0;
   export let name = "";

@@ -19,10 +19,10 @@
   } from "../store/common";
   import {
     currentSongStore,
-    playStatusStore,
+    isPlaying,
     currentPlayListStore,
     currentSongIndexStore,
-    isFMPlayStore,
+    isFMPlaying,
     playRepeatModelStore,
     currentSongQualityStore,
   } from "../store/play";
@@ -138,7 +138,7 @@
         currentSongQualityStore.set(res.data[0].br);
       }
       playSong(song);
-      playStatusStore.set(true);
+      isPlaying.set(true);
       // if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
       //   getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
     } else {
@@ -150,7 +150,7 @@
   }
   function playListFun(index) {
     playRepeatModelStore.set("repeat");
-    isFMPlayStore.set(false);
+    isFMPlaying.set(false);
     localStorage.setItem("isFMPlay", "0");
     currentPlayListStore.set(songList);
     const ids = songList.map((song) => song.id);

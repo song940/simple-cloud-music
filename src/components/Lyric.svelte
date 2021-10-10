@@ -1,50 +1,43 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { parse } from "lyric.js";
-  import { currentLyricStore } from "../store/play";
-  import { isShowTranslateStore } from "../store/common";
-
+  import { parse, cue } from "lyric.js";
   import { scrollSmoothTo } from "../utils/common";
+  import { currentLyricStore } from "../store/play";
 
   export let maxHeight = "";
 
   $: lyric = $currentLyricStore.lyric;
-  $: tlyric = $isShowTranslateStore ? $currentLyricStore.tlyric : "";
+  $: tlyric = $currentLyricStore.tlyric;
+
   $: lyricArr = [];
   $: currentIndex = 0;
+
   let boxDom;
-
-  const cue = (arr, fn) => {
-    let current;
-    return (time) => {
-      // console.debug("currentTime:", time);
-      arr.forEach((x, i) => {
-        const next = arr[i + 1];
-        if (
-          time >= x.timestamp &&
-          (next ? time < next.timestamp : true) &&
-          current !== x
-        ) {
-          currentIndex = i;
-          current = x;
-          fn(x);
-        }
-      });
-    };
-  };
-
   let update;
-
   const timeupdate = () => {
     const { currentTime } = window.audioDOM;
-    const currentTimeMS = currentTime * 1000;
-    update(currentTimeMS);
+    update(currentTime);
+  };
+
+  const mergeLyric = (a, b) => {
+    const arr = [];
+    for (const x of b) {
+      const y = a.find((y) => x.timestamp === y.timestamp);
+      if (y) {
+        y.content_t = x.content;
+      } else {
+        a.push(x);
+      }
+    }
+    return a;
   };
 
   onMount(() => {
-    lyricArr = parse(lyric);
-    console.table(lyricArr);
-    update = cue(lyricArr, (line) => {
+    const a = parse(lyric);
+    const b = parse(tlyric);
+    lyricArr = mergeLyric(a.lines, b.lines);
+    update = cue(lyricArr, (line, i) => {
+      currentIndex = i;
       const active = boxDom.querySelector(".active");
       const offset = Math.max(0, active.offsetTop - 200);
       console.debug(line, active.offsetTop, offset);
@@ -63,8 +56,8 @@
     {#each lyricArr as lyric, i}
       <div class="ly" class:active={i === currentIndex}>
         <div>{lyric.content}</div>
-        {#if tlyric.trim() !== ""}
-          <div class="t-text">{lyric.text_t}</div>
+        {#if tlyric && lyric.content_t}
+          <div class="t-text">{lyric.content_t}</div>
         {/if}
       </div>
     {/each}

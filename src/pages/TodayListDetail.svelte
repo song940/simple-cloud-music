@@ -8,13 +8,16 @@
 
   import { getSongUrl, getSongDetail } from "../api/song";
 
-  import { playListDetailStore, todayListStore } from "../store/playList";
+  import {
+    playListDetailStore,
+    dailyRecommendTracksStore,
+  } from "../store/playList";
   import {
     currentSongStore,
-    playStatusStore,
+    isPlaying,
     currentPlayListStore,
     currentSongIndexStore,
-    isFMPlayStore,
+    isFMPlaying,
     playRepeatModelStore,
     currentSongQualityStore,
   } from "../store/play";
@@ -27,8 +30,8 @@
   onResume(() => {
     if (!$defaultResumableStore) {
       let songIdList = [];
-      for (let i = 0; i < $todayListStore.length; i++) {
-        songIdList.push($todayListStore[i].id);
+      for (let i = 0; i < $dailyRecommendTracksStore.length; i++) {
+        songIdList.push($dailyRecommendTracksStore[i].id);
       }
       getSongDetailFun(songIdList.join(","));
       getSongUrl(songIdList[0]);
@@ -36,8 +39,8 @@
   });
   onMount(() => {
     let songIdList = [];
-    for (let i = 0; i < $todayListStore.length; i++) {
-      songIdList.push($todayListStore[i].id);
+    for (let i = 0; i < $dailyRecommendTracksStore.length; i++) {
+      songIdList.push($dailyRecommendTracksStore[i].id);
     }
     getSongDetailFun(songIdList.join(","));
     getSongUrl(songIdList[0]);
@@ -51,7 +54,7 @@
   }
   function playListFun(index) {
     playRepeatModelStore.set("repeat");
-    isFMPlayStore.set(false);
+    isFMPlaying.set(false);
     localStorage.setItem("isFMPlay", "0");
     currentPlayListStore.set(songList);
     let ids = [];
@@ -78,11 +81,14 @@
         localStorage.setItem("currentSong", JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
+        isPlaying.set(true);
         if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
           getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
       } else {
-        Toast(`😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`, 2000);
+        Toast(
+          `😂 无法播放「${song.name}」！可能是版权原因......吧！请播放下一首。`,
+          2000
+        );
       }
     }
   }

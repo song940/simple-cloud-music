@@ -404,10 +404,10 @@ local-access@^1.0.1:
   resolved "https://registry.yarnpkg.com/local-access/-/local-access-1.1.0.tgz#e007c76ba2ca83d5877ba1a125fc8dfe23ba4798"
   integrity sha512-XfegD5pyTAfb+GY6chk283Ox5z8WexG56OvM06RWLpAc/UHozO8X6xAxEkIitZOtsSMM1Yr3DkHgW5W+onLhCw==
 
-lyric.js@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/lyric.js/-/lyric.js-0.0.0.tgz#b2f3b6e314019fd3d6f791a1fb4164cdc867ba0b"
-  integrity sha512-f/4oCcK5uNtwKPfum3+xU31XC/Kv7WhChjI0yqZsdMk+XxFkVqg7a9DEahJojVcenDjyC7Wt/h8HPehO2ymy0A==
+lyric.js@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/lyric.js/-/lyric.js-0.0.4.tgz#3775c949dab7c5f0e1e867fea67dcbd7ed720a06"
+  integrity sha512-RTh2L5lmkvGtiyg8Ml/QcijmZfXS/W/yAn4HG96q/gRVc/GTLWNEQyTC67B0ZU47rQGiUfNrMMh6FRyFpRfpyw==
 
 magic-string@^0.25.2, magic-string@^0.25.7:
   version "0.25.7"

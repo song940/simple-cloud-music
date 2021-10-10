@@ -27,9 +27,9 @@
     currentSongIndexStore,
     playIsMaxStore,
     playIsMinStore,
-    playStatusStore,
+    isPlaying,
     playerTop,
-    isFMPlayStore,
+    isFMPlaying,
     FMPlayStore,
     FMPlayNextStore,
     currentTimeStore,
@@ -37,7 +37,6 @@
     playRepeatModelStore,
     currentSongQualityStore,
   } from "./store/play";
-  import { userInfoStore, userLikeSongIdsStore } from "./store/user";
 
   import {
     timeToMinute,
@@ -80,39 +79,17 @@
       playerTop.set(window.screen.height + "px");
     }
   });
-
-  // pushHistory();
-
-  // window.addEventListener(
-  //   "popstate",
-  //   function (e) {
-  //     console.log(11, e);
-  //     // $(".onback").show();
-  //   },
-  //   false
-  // );
-
-  // function pushHistory() {
-  //   var state = {
-  //     title: "title",
-  //     url: "#",
-  //   };
-  //   window.history.pushState(state, "title", "#");
-  // }
+  
 
   onMount(() => {
-    if ($isLoginStore) {
-      userPlaylistFun($userInfoStore);
-      likedArtistsFun();
-    }
     // 开启页面重新请求播放列表数据
-    if (localStorage.getItem("localPlayList")) {
-      let localPlayList = JSON.parse(localStorage.getItem("localPlayList"));
-      if (localPlayList.length > 300) {
-        localPlayList = localPlayList.slice(0, 300);
-      }
-      getLocalPlayListFun(localPlayList.join(","));
-    }
+    // if (localStorage.getItem("localPlayList")) {
+    //   let localPlayList = JSON.parse(localStorage.getItem("localPlayList"));
+    //   if (localPlayList.length > 300) {
+    //     localPlayList = localPlayList.slice(0, 300);
+    //   }
+    //   getLocalPlayListFun(localPlayList.join(","));
+    // }
     if (
       location.href.indexOf("#") < 0 ||
       location.href.split("#")[1] === "" ||
@@ -130,6 +107,7 @@
         "-" +
         timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
     });
+
     window.audioDOM.addEventListener("timeupdate", function () {
       currentTimeStore.set(window.audioDOM.currentTime);
       // 更新与播放进度相关的内容
@@ -143,7 +121,7 @@
     window.audioDOM.addEventListener(
       "ended",
       function () {
-        if ($isFMPlayStore) {
+        if ($isFMPlaying) {
           //私人FM播放
           playerShowType.set("cover");
           getSongUrlFun($FMPlayNextStore, "fm");
@@ -213,19 +191,7 @@
       localStorage.setItem("localPlayList", JSON.stringify(ids));
     }
   }
-  //获取收藏的歌手
-  async function likedArtistsFun() {
-    const res = await likedArtists({ limit: 2000 });
-    if (res.code === 200) {
-      let ids = [];
-      for (let i = 0; i < res.data.length; i++) {
-        ids.push(res.data[i].id);
-      }
-      localStorage.setItem("useLoveSongerIds", JSON.stringify(ids));
-    } else {
-      Alert("获取喜爱歌手失败");
-    }
-  }
+
   async function getSongUrlFun(song, type, index) {
     const res = await getSongUrl(song.id); //获取歌曲url
     if (res.code === 200) {
@@ -240,8 +206,8 @@
         }
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
-        if ($isFMPlayStore) {
+        isPlaying.set(true);
+        if ($isFMPlaying) {
           //私人FM播放
           personalFMFun();
           FMPlayStore.set(song);
@@ -286,38 +252,6 @@
       res.data[0].ar = res.data[0].artists;
       res.data[0].alia = res.data[0].alias;
       FMPlayNextStore.set(res.data[0]);
-    }
-  }
-  async function userPlaylistFun(login) {
-    //获取用户收藏歌单ID列表,用于判断是否已经收藏
-    const res = await userPlaylist({
-      uid: login.account.id,
-      limit: 10000,
-      offset: 0,
-    });
-    if (res.code === 200) {
-      let ids = [];
-      for (let i = 0; i < res.playlist.length; i++) {
-        ids.push(res.playlist[i].id);
-      }
-      localStorage.setItem("usePlayListIds", JSON.stringify(ids));
-      userLikedSongsIDsFun(login);
-    } else {
-      Alert("获取收藏歌单失败");
-    }
-  }
-  async function userLikedSongsIDsFun(login) {
-    //获取用户喜爱歌曲ID列表,用于判断是否已经收藏
-    const res = await userLikedSongsIDs(login.account.id);
-    if (res.code === 200) {
-      let ids = [];
-      for (let i = 0; i < res.ids.length; i++) {
-        ids.push(res.ids[i]);
-      }
-      userLikeSongIdsStore.set(JSON.stringify(ids));
-      localStorage.setItem("useLoveSongIds", JSON.stringify(ids));
-    } else {
-      Alert("获取喜爱歌曲失败");
     }
   }
 </script>

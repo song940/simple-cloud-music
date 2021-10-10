@@ -4,28 +4,21 @@
   import { push } from "svelte-stack-router";
   import { StarSFill } from "svelte-remixicon";
 
-  import { isHomePageStore, currentDetailSongerIdStore } from "../store/common";
-
   import { imageURL } from "../utils/common";
+  import { isHomePageStore } from "../store/common";
 
   export let songer = {};
   export let coverSize = 200;
-  let useLoveSongerIds =
-    JSON.parse(localStorage.getItem("useLoveSongerIds")) || [];
-  let songerDom;
-  onMount(() => {
-    // if (songerDom) {
-    //   ripple(songerDom);
-    // }
-  });
-  function toSongerPageFun() {
+
+  let useLoveSongerIds = [];
+
+  function gotoArtist() {
     isHomePageStore.set(false);
-    currentDetailSongerIdStore.set(songer.id);
     push(`/artist?id=${songer.id}`);
   }
 </script>
 
-<div class="singer" on:click={toSongerPageFun} bind:this={songerDom}>
+<div class="singer" on:click={gotoArtist}>
   {#if useLoveSongerIds.includes(songer.id)}
     <div class="star">
       <StarSFill size="14" style="vertical-align: middle" />
@@ -33,7 +26,7 @@
   {/if}
   <div class="cover">
     <Lazy height={100}>
-      <img src={imageURL(songer.img1v1Url, { width: coverSize })} alt="" />
+      <img src={imageURL(songer.img1v1Url, { size: coverSize })} alt="" />
     </Lazy>
   </div>
   <div class="name">{songer.name}</div>

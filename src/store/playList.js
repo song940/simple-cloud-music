@@ -7,4 +7,4 @@ export const playListIdStore = writable("");
 export const playListDetailStore = writable({});
 
 //今日推荐歌曲列表
-export const todayListStore = writable([]);
+export const dailyRecommendTracksStore = writable([]);

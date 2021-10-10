@@ -34,13 +34,13 @@
   } from "../api/song";
 
   import {
-    playStatusStore,
+    isPlaying,
     currentSongStore,
     currentPlayListStore,
     currentSongIndexStore,
     playerTop,
     playIsMaxStore,
-    isFMPlayStore,
+    isFMPlaying,
     FMPlayNextStore,
     FMPlayStore,
     currentLyricStore,
@@ -54,7 +54,7 @@
     currentDetailSongerIdStore,
     isShowCommentStore,
   } from "../store/common";
-  import { userLikeSongIdsStore } from "../store/user";
+  import { userLikedSongIdsStore } from "../store/user";
 
   import {
     timeToMinute,
@@ -88,9 +88,7 @@
   let touchEndTime = 0; //滑动结束时间戳
   let playListDom;
 
-  $: isLikeCurrentSong = $isLoginStore
-    ? $userLikeSongIdsStore.includes($currentSongStore.id)
-    : false; //是否喜欢当前歌曲
+  $: isLikeCurrentSong = $isLoginStore && $userLikedSongIdsStore.includes($currentSongStore.id); //是否喜欢当前歌曲
   $: likeLoading = false; //优化点击红心请求时候loading效果
   $: noLikeLoading = false; //优化FM点击不喜欢红心请求时候loading效果
   $: lyricLoading = false; //优化点击歌词请求时候loading效果
@@ -131,7 +129,7 @@
       "-" +
       timeToMinute(window.audioDOM.duration - window.audioDOM.currentTime);
     window.audioDOM.play();
-    playStatusStore.set(true);
+    isPlaying.set(true);
   }
   //接收子组件（Progress）发送来的事件（setTimeCurrent），获取当前进度时间点的值（event.detail.timeCurrent ）。
   function getTimeCurrent(event) {
@@ -150,7 +148,7 @@
   }
   //切换下一首
   function playNextFun() {
-    if ($isFMPlayStore) {
+    if ($isFMPlaying) {
       //正在私人FM
       getSongUrlFun($FMPlayNextStore, "next");
       playerShowType.set("cover");
@@ -199,8 +197,8 @@
         localStorage.setItem("currentSong", JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
-        if ($isFMPlayStore) {
+        isPlaying.set(true);
+        if ($isFMPlaying) {
           //私人FM
           personalFMFun();
           FMPlayStore.set(song);
@@ -260,7 +258,7 @@
           ids.unshift($currentSongStore.id);
         }
         likeLoading = false;
-        userLikeSongIdsStore.set(JSON.stringify(ids));
+        userLikedSongIdsStore.set(JSON.stringify(ids));
         localStorage.setItem("useLoveSongIds", JSON.stringify(ids));
       } else {
         likeLoading = false;
@@ -464,9 +462,9 @@
         >
           <div>
             <img
-              style="width:{$playStatusStore
+              style="width:{$isPlaying
                 ? '280px'
-                : '240px'};height:{$playStatusStore ? '280px' : '240px'}"
+                : '240px'};height:{$isPlaying ? '280px' : '240px'}"
               src={imageURL($currentSongStore.al.picUrl, { width: 800 })}
               alt=""
               class="cover-img"
@@ -477,7 +475,7 @@
         <div class="lyric-cover" on:click={lyricClickFun}>
           <Lyric maxHeight="54vh" />
         </div>
-      {:else if !$isFMPlayStore && $playerShowType === "list"}
+      {:else if !$isFMPlaying && $playerShowType === "list"}
         <div class="song-list-box" bind:this={playListDom}>
           <SongList songList={$currentPlayListStore} />
         </div>
@@ -574,7 +572,7 @@
             <ChatQuoteLine size="20" style="vertical-align: middle" />
           {/if}
         </div>
-        {#if !$isFMPlayStore}
+        {#if !$isFMPlaying}
           <!-- 播放列表 -->
           <div
             class="tool-item list"
@@ -588,7 +586,7 @@
             {/if}
           </div>
         {/if}
-        {#if $isFMPlayStore && $isLoginStore}
+        {#if $isFMPlaying && $isLoginStore}
           <!-- FM 不喜欢 -->
           <div
             class="tool-item list"
@@ -640,7 +638,7 @@
             {/if}
           </div>
         {/if}
-        {#if !$isFMPlayStore}
+        {#if !$isFMPlaying}
           <!-- 播放模式 -->
           <div
             class="tool-item mode"
@@ -652,7 +650,7 @@
             {:else if $playRepeatModelStore === "repeatOnce"}
               <RepeatOneLine size="20" style="vertical-align: middle" />
             {:else if $playRepeatModelStore === "heart"}
-              <span class:heart-beat={$playStatusStore}>
+              <span class:heart-beat={$isPlaying}>
                 <HeartPulseLine size="20" style="vertical-align: middle" />
               </span>
             {:else}
@@ -675,11 +673,11 @@
         <div
           class="con-item pre"
           on:click={() => {
-            if (!$isFMPlayStore) playPreFun();
+            if (!$isFMPlaying) playPreFun();
           }}
           bind:this={preDom}
         >
-          {#if $isFMPlayStore}
+          {#if $isFMPlaying}
             <RadioLine
               size="24px"
               style="vertical-align: middle;;height:80px"
@@ -695,9 +693,9 @@
           class="con-item pause"
           bind:this={playDom}
           on:click={() => {
-            if ($playStatusStore) {
+            if ($isPlaying) {
               window.audioDOM.pause();
-              playStatusStore.set(false);
+              isPlaying.set(false);
               localStorage.setItem("pauseTimes", new Date().getTime());
             } else {
               //解决长时间不播放URL失效问题(暂定30分钟过期)
@@ -711,11 +709,11 @@
                 window.audioDOM.src = `https://music.163.com/song/media/outer/url?id=${$currentSongStore.id}.mp3`;
               }
               window.audioDOM.play();
-              playStatusStore.set(true);
+              isPlaying.set(true);
             }
           }}
         >
-          {#if $playStatusStore}
+          {#if $isPlaying}
             <PauseFill size="80px" style="vertical-align: middle;height:80px" />
           {:else}
             <PlayFill size="80px" style="vertical-align: middle;height:80px" />

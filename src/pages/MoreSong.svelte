@@ -8,10 +8,10 @@
   import { defaultResumableStore, coverImgUrlStore } from '../store/common';
   import {
     currentSongStore,
-    playStatusStore,
+    isPlaying,
     currentPlayListStore,
     currentSongIndexStore,
-    isFMPlayStore,
+    isFMPlaying,
     currentSongQualityStore,
   } from '../store/play';
 
@@ -60,7 +60,7 @@
     }
   }
   function playListFun(index) {
-    isFMPlayStore.set(false);
+    isFMPlaying.set(false);
     localStorage.setItem('isFMPlay', '0');
     let newcurrentPlayList = $currentPlayListStore;
     let newPlayListIds = [];
@@ -99,7 +99,7 @@
         localStorage.setItem('currentSong', JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
+        isPlaying.set(true);
         if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
           getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
       } else {

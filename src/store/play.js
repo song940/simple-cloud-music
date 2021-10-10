@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { defaultCover } from '../store/common';
 
 //播放器播放与暂停状态。true/false
-export const playStatusStore = writable(false);
+export const isPlaying = writable(false);
 //播放器是否显示最大化。true/false
 export const playIsMaxStore = writable(false);
 //底部是否显示播放控制条，首次打开无歌曲播放时不显示。true/false
@@ -45,7 +45,7 @@ export const isLoadingSongStore = writable(false);
 export const playerTop = writable('100%');
 
 //是否正在私人FM播放
-export const isFMPlayStore = writable(localStorage.getItem('isFMPlay') === '1' ? true : false);
+export const isFMPlaying = writable(localStorage.getItem('isFMPlay') === '1' ? true : false);
 //私人FM当前播放
 export const FMPlayStore = writable(
   JSON.parse(localStorage.getItem('FMPlay')) ? JSON.parse(localStorage.getItem('FMPlay')) : {}

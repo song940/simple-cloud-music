@@ -1,10 +1,10 @@
 <script>
   import {
     currentSongStore,
-    playStatusStore,
+    isPlaying,
     currentPlayListStore,
     currentSongIndexStore,
-    isFMPlayStore,
+    isFMPlaying,
     playRepeatModelStore,
     currentSongQualityStore,
   } from '../store/play';
@@ -21,7 +21,7 @@
   function playListFun(index) {
     if (isPlayList) {
       playRepeatModelStore.set('repeat');
-      isFMPlayStore.set(false);
+      isFMPlaying.set(false);
       localStorage.setItem('isFMPlay', '0');
       currentPlayListStore.set(songList);
       let ids = [];
@@ -32,7 +32,7 @@
       currentSongIndexStore.set(index);
       getSongUrlFun($currentPlayListStore[$currentSongIndexStore]);
     } else {
-      isFMPlayStore.set(false);
+      isFMPlaying.set(false);
       localStorage.setItem('isFMPlay', '0');
       let newcurrentPlayList = $currentPlayListStore;
       let newPlayListIds = [];
@@ -71,7 +71,7 @@
         localStorage.setItem('currentSong', JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
+        isPlaying.set(true);
         if ($currentSongIndexStore !== $currentPlayListStore.length - 1)
           getSongUrl($currentPlayListStore[$currentSongIndexStore + 1].id);
       } else {

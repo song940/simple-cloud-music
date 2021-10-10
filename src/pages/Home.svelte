@@ -17,14 +17,14 @@
       $isLoginStore &&
       localStorage.getItem('dailySigninFun_date') != '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate()
     ) {
-      dailySigninFun();
+      // dailySigninFun();
     }
   });
   //签到
   async function dailySigninFun() {
-    await dailySignin();
+    // await dailySignin();
     let date = new Date();
-    localStorage.setItem('dailySigninFun_date', '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate());
+    // localStorage.setItem('dailySigninFun_date', '' + date.getFullYear() + (date.getMonth() + 1) + date.getDate());
   }
 </script>
 

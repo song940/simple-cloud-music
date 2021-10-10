@@ -11,8 +11,8 @@
   import { playIsMinStore } from "../store/play";
   import {
     userInfoStore,
-    userLikeSongIdsStore,
-    userLikeListIdStore,
+    userLikedSongIdsStore,
+    userLikedPlaylistStore,
   } from "../store/user";
 
   import {
@@ -154,7 +154,7 @@
   //       res.playlist[0].creator.userId === $userInfoStore.account.id &&
   //       res.playlist[0].name.substr(-5) === "喜欢的音乐"
   //     ) {
-  //       userLikeListIdStore.set(res.playlist[0].id);
+  //       userLikedPlaylistStore.set(res.playlist[0].id);
   //       localStorage.setItem("userLikeListId", res.playlist[0].id);
   //     }
 
@@ -174,7 +174,7 @@
   //     }
   //     isLoginStore.set(true);
   //     localStorage.setItem("isLogin", true);
-  //     userLikeSongIdsStore.set(JSON.stringify(ids));
+  //     userLikedSongIdsStore.set(JSON.stringify(ids));
   //     localStorage.setItem("useLoveSongIds", JSON.stringify(ids));
   //     likedArtistsFun();
   //   } else {

@@ -5,7 +5,6 @@
     RadioFill,
     RefreshLine,
     Calendar2Fill,
-    GitRepositoryPrivateLine,
   } from "svelte-remixicon";
 
   import TopTitle from "../components/TopTitle.svelte";
@@ -17,19 +16,24 @@
   import { isLoginStore, defaultCover } from "../store/common";
   import {
     playIsMaxStore,
-    playStatusStore,
+    isPlaying,
     currentSongStore,
     currentPlayListStore,
     currentSongIndexStore,
     playerTop,
     FMPlayStore,
-    isFMPlayStore,
+    isFMPlaying,
     FMPlayNextStore,
     currentSongQualityStore,
   } from "../store/play";
   import { isHomePageStore } from "../store/common";
-  import { todayListStore } from "../store/playList";
-  import { userLikeListIdStore } from "../store/user";
+  import { dailyRecommendTracksStore } from "../store/playList";
+  import {
+    userInfoStore,
+    userLikedArtistsStore,
+    userLikedSongIdsStore,
+    userLikedPlaylistStore,
+  } from "../store/user";
 
   import {
     dailyRecommendTracks,
@@ -53,6 +57,8 @@
     imageURL,
   } from "../utils/common";
 
+  import { sync } from '../helper/user';
+
   let dailyRecommendPlayList = []; //每日歌单推荐
   let randomLoveSong = {}; //随机一个喜欢歌曲
   let similarPlayList = []; //相似歌单推荐
@@ -68,6 +74,37 @@
   $: simiSonger = {};
   $: simiSongers = [];
 
+  const fetchData = async () => {
+    if (!$isLoginStore) return;
+    await sync($userInfoStore);
+    dailyRecommendTracksFun();
+    dailyRecommendPlaylistFun();
+    personalFMFun(true);
+
+    console.log("userLikedSongIdsStore:", $userLikedSongIdsStore);
+    console.log("userLikedArtistsStore:", $userLikedArtistsStore);
+    console.log("userLikedPlaylistStore:", $userLikedPlaylistStore);
+
+    //收藏随机歌手一位
+    const randomSongIndex = Math.floor(
+      Math.random() * $userLikedSongIdsStore.length
+    );
+    const randomSong = $userLikedSongIdsStore[randomSongIndex];
+    if (randomSong) {
+      getSongDetailFun(randomSong);
+      getSimiPlaylistFun(randomSong);
+    }
+
+    const randomArtistIndex = Math.floor(
+      Math.random() * $userLikedArtistsStore.length
+    );
+    const randomArtist = $userLikedArtistsStore[randomArtistIndex];
+    if (randomArtist) {
+      getSongerDetailFun(randomArtist);
+      similarArtistsFun(randomArtist);
+    }
+  };
+
   onMount(() => {
     if (FMDom) {
       ripple(FMDom);
@@ -75,64 +112,47 @@
     if (todayDom) {
       ripple(todayDom);
     }
-    allOnMount();
+    fetchData();
   });
-  function allOnMount() {
-    if ($isLoginStore) {
-      dailyRecommendPlaylistFun();
-      dailyRecommendTracksFun();
-      personalFMFun(true);
-      let useLoveSongIds =
-        JSON.parse(localStorage.getItem("useLoveSongIds")) || [];
-      let randomIndex = Math.floor(Math.random() * useLoveSongIds.length);
-      getSongDetailFun(useLoveSongIds[randomIndex]);
-      getSimiPlaylistFun(useLoveSongIds[randomIndex]);
-      getPlaylistDetailFun();
-      //收藏随机歌手一位
-      const useLoveSongerIds =
-        JSON.parse(localStorage.getItem("useLoveSongerIds")) || [];
-      let index = Math.floor(Math.random() * useLoveSongerIds.length);
-      if (index) {
-        getSongerDetailFun(useLoveSongerIds[index]);
-        similarArtistsFun(useLoveSongerIds[index], useLoveSongerIds);
-      }
-    }
-  }
-  //今日推荐歌曲
-  function playTodayFun() {
-    isHomePageStore.set(false);
-    push("/todayListDetail");
-  }
-  //播放私人FM
-  function playFMFun() {
+
+  /**
+   * 播放私人FM
+   */
+  function playFMRadio() {
     if ($FMPlayStore.id === $currentSongStore.id) {
       window.audioDOM.play();
-      playStatusStore.set(true);
-      playIsMaxStore.set(true);
+      isPlaying.set(true);
       playerTop.set("0px");
+      playIsMaxStore.set(true);
     } else {
-      isFMPlayStore.set(true);
+      isFMPlaying.set(true);
       localStorage.setItem("isFMPlay", "1");
       getSongUrlFun($FMPlayStore);
     }
   }
-  //请求私人FM
+  /**
+   * 请求私人FM
+   * @param first
+   */
   async function personalFMFun(first) {
     //first 是否是第一次请求私人FM
     const res = await personalFM();
     if (res.code === 200) {
-      res.data[0].al = res.data[0].album;
-      res.data[0].ar = res.data[0].artists;
-      res.data[0].alia = res.data[0].alias;
-      res.data[1].al = res.data[1].album;
-      res.data[1].ar = res.data[1].artists;
-      res.data[1].alia = res.data[1].alias;
+      const [song1, song2] = res.data;
+
+      song1.al = song1.album;
+      song1.ar = song1.artists;
+      song1.alia = song1.alias;
+
+      song2.al = song2.album;
+      song2.ar = song2.artists;
+      song2.alia = song2.alias;
       if (first) {
-        FMPlayStore.set(res.data[0]);
-        FMPlayNextStore.set(res.data[1]);
-        localStorage.setItem("FMPlay", JSON.stringify($FMPlayStore));
+        FMPlayStore.set(song1);
+        FMPlayNextStore.set(song2);
+        // localStorage.setItem("FMPlay", JSON.stringify($FMPlayStore));
       } else {
-        FMPlayStore.set(res.data[0]);
+        FMPlayStore.set(song1);
       }
     }
   }
@@ -140,26 +160,43 @@
   async function dailyRecommendTracksFun() {
     const res = await dailyRecommendTracks();
     if (res.code === 200) {
-      todayListStore.set(res.data.dailySongs);
+      dailyRecommendTracksStore.set(res.data.dailySongs);
     }
   }
   //每日推荐歌单
   async function dailyRecommendPlaylistFun() {
     const res = await dailyRecommendPlaylist();
-    if (res.code === 200) {
-      let olddailyRecommendPlayList = res.recommend;
-      if (
-        olddailyRecommendPlayList[0].copywriter === "猜你喜欢" &&
-        olddailyRecommendPlayList[0].name.indexOf("私人雷达") > -1
-      ) {
-        // getPlaylistDetailFun(true, olddailyRecommendPlayList);
-      } else {
-        dailyRecommendPlayList = olddailyRecommendPlayList;
+    if (res.code !== 200) return;
+    const { recommend } = res;
+    const [playlist] = recommend;
+    const { name } = playlist;
+    const playlistDetail = await getPlaylistDetail(playlist.id);
+    Object.assign(playlist, playlistDetail.playlist);
+    playlist.name = name;
+
+    for (let i = 0; i < recommend.length; i++) {
+      const list = recommend[i];
+      const { name, copywriter, tracks } = list;
+      const isRadar =
+        copywriter === "猜你喜欢" && name.indexOf("私人雷达") !== -1;
+      if (isRadar && tracks) {
+        list.copywriter = name;
+        list.name = `从《${tracks[0].name}》开始听吧`;
       }
+      list.playCount = list.playcount;
+      list.coverImgUrl =
+        list.picUrl || list.coverImgUrl || list.tracks[0].al.picUrl;
     }
+    dailyRecommendPlayList = recommend;
+    console.debug("dailyRecommendPlayList", dailyRecommendPlayList);
+    // 喜欢歌曲最新20首随机一首
+    const randomIndexTen = Math.round(Math.random() * 20);
+    randomTenLoveSong = playlistDetail.playlist.tracks[randomIndexTen];
+    if (randomTenLoveSong) getSimiSongFun(randomTenLoveSong.id);
   }
   //请求歌曲详情
   async function getSongDetailFun(id) {
+    if (!id) return;
     const res = await getSongDetail(id); //获取歌单详情
     if (res.code === 200) {
       randomLoveSong = res.songs[0];
@@ -167,6 +204,7 @@
   }
   //请求相似歌单
   async function getSimiPlaylistFun(id) {
+    if (!id) return;
     const res = await getSimiPlaylist(id); //获取歌单详情
     if (res.code === 200) {
       similarPlayList = res.playlists;
@@ -184,32 +222,6 @@
       similarSongs = res.songs;
     }
   }
-  //请求歌单详情
-  async function getPlaylistDetailFun(isRadar = false, list) {
-    const res = await getPlaylistDetail(
-      isRadar ? list[0].id : $userLikeListIdStore
-    ); //获取歌单详情
-    if (res.code === 200) {
-      if (isRadar) {
-        if (
-          list[0].copywriter === "猜你喜欢" &&
-          list[0].name.indexOf("私人雷达") > -1
-        ) {
-          list[0].copywriter = list[0].name;
-          list[0].picUrl = res.playlist.tracks[0].al.picUrl;
-          list[0].name = `从《${res.playlist.tracks[0].name}》开始听吧`;
-        }
-        for (let i = 0; i < list.length; i++) {
-          list[i].coverImgUrl = list[i].picUrl;
-          list[i].playCount = list[i].playcount;
-        }
-        dailyRecommendPlayList = list;
-      }
-      let randomIndexTen = Math.round(Math.random() * 20); //喜欢歌曲最新20首随机一首
-      randomTenLoveSong = res.playlist.tracks[randomIndexTen];
-      if (randomTenLoveSong) getSimiSongFun(randomTenLoveSong.id);
-    }
-  }
   //获取歌曲URL
   async function getSongUrlFun(song) {
     const res = await getSongUrl(song.id);
@@ -225,8 +237,8 @@
         }
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
-        if ($isFMPlayStore) {
+        isPlaying.set(true);
+        if ($isFMPlaying) {
           currentPlayListStore.set([song]);
           currentSongIndexStore.set(0);
           currentSongStore.set(song);
@@ -245,14 +257,14 @@
     }
   }
   //获取相似歌手
-  async function similarArtistsFun(id, useLoveSongerIds) {
+  async function similarArtistsFun(id) {
     const res = await similarArtists(id);
     if (res.code === 200) {
       let newSongerIds = [];
       for (let e = 0; e < res.artists.length; e++) {
         newSongerIds.push(res.artists[e].id);
       }
-      let artists = distinct(newSongerIds, useLoveSongerIds); //交集
+      let artists = distinct(newSongerIds, $userLikedArtistsStore); //交集
       for (let t = 0; t < artists.length; t++) {
         for (let p = 0; p < res.artists.length; p++) {
           if (artists[t] === res.artists[p].id) {
@@ -282,10 +294,20 @@
     let intersection = new Set([...aSet].filter((x) => bSet.has(x)));
     return Array.from(intersection);
   }
-  function topClickFun(event) {
+
+
+  function clickRefresh(event) {
     if (event.detail.index === 0) {
-      allOnMount();
+      fetchData();
     }
+  }
+
+  /**
+   * 今日推荐歌曲
+  */
+  function gotoDailyRecommendTracks() {
+    isHomePageStore.set(false);
+    push("/daily");
   }
 </script>
 
@@ -297,26 +319,33 @@
         desc="专属推荐"
         {topTitleRightList}
         {isRefresh}
-        on:IconClick={topClickFun}
+        on:IconClick={clickRefresh}
       />
       <div class="login">
-        <div class="today" on:click={playTodayFun} bind:this={todayDom}>
+        <div
+          class="today"
+          on:click={gotoDailyRecommendTracks}
+          bind:this={todayDom}
+        >
           <div
             class="today-img-box"
             style="width: {fullWidth() -
-              40}px;background-image:url({$todayListStore.length !== 0
-              ? imageURL($todayListStore[0].al.picUrl, { size: 800 })
+              40}px;background-image:url({$dailyRecommendTracksStore.length !==
+            0
+              ? imageURL($dailyRecommendTracksStore[0].al.picUrl, { size: 800 })
               : defaultCover})"
           />
           <div class="day-box">
             <div class="day">今日推荐</div>
             <div class="name-list">
               <div class="name">
-                {$todayListStore.length !== 0 ? $todayListStore[0].name : ""}
+                {$dailyRecommendTracksStore.length !== 0
+                  ? $dailyRecommendTracksStore[0].name
+                  : ""}
               </div>
               <div class="songer">
-                {$todayListStore.length !== 0
-                  ? songerListToStr($todayListStore[0].ar)
+                {$dailyRecommendTracksStore.length !== 0
+                  ? songerListToStr($dailyRecommendTracksStore[0].ar)
                   : ""}
               </div>
               <div class="calendar">
@@ -331,7 +360,7 @@
         </div>
         <div
           class="fm-box"
-          on:click={playFMFun}
+          on:click={playFMRadio}
           style="background:url({$FMPlayStore.album
             ? imageURL($FMPlayStore.album.blurPicUrl, { width: 80 })
             : ''})"
@@ -348,7 +377,7 @@
               />
             </div>
             <div class="fm-info">
-              {#if $isFMPlayStore && $playStatusStore && $currentSongStore.id === $FMPlayStore.id}
+              {#if $isFMPlaying && $isPlaying && $currentSongStore.id === $FMPlayStore.id}
                 <div class="fm-play-motion">
                   <div class="pull_down pull_down1" />
                   <div class="pull_down pull_down2" />

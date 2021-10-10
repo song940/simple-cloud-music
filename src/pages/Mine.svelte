@@ -19,20 +19,22 @@
 
   import {
     currentSongStore,
-    playStatusStore,
+    isPlaying,
     currentSongIndexStore,
     currentPlayListStore,
-    isFMPlayStore,
+    isFMPlaying,
     playRepeatModelStore,
     currentSongQualityStore,
   } from "../store/play";
   import { isLoginStore, isHomePageStore } from "../store/common";
   import {
-    userLikeSongIdsStore,
     userInfoStore,
-    userLikeListIdStore,
+    userLikedArtistsStore,
+    userLikedSongIdsStore,
+    userLikedPlaylistStore,
   } from "../store/user";
 
+  import { sync, userLikedArtistsFun } from "../helper/user";
   import { Toast, Alert, ripple, formatURL, imageURL } from "../utils/common";
 
   let loveSongDom;
@@ -52,52 +54,41 @@
     type: "icon",
     path: RefreshLine,
   };
-  let newuserLikeSongIdsStore =
-    typeof $userLikeSongIdsStore === "string"
-      ? JSON.parse($userLikeSongIdsStore)
-      : $userLikeSongIdsStore;
   onMount(() => {
     if (infoDom) {
       ripple(infoDom);
     }
-    // allOnMount();
+    allOnMount();
   });
   //初始化页面事件
-  function allOnMount() {
-    if ($isLoginStore) {
-      randomFontSize = getRandom(10, 30, 10);
-      randomTop = getRandom(0, 200, 10);
-      randomleft = getRandom(-50, 300, 10);
-      randomIds = getRandom(
-        0,
-        JSON.parse(localStorage.getItem("useLoveSongIds")).length,
-        10
-      );
-      let ids = [];
-      for (let i = 0; i < randomIds.length; i++) {
-        ids.push(
-          JSON.parse(localStorage.getItem("useLoveSongIds"))[randomIds[i]]
-        );
-      }
-      getSongDetailFun(ids.join(","));
-      userPlaylistFun();
-      likedArtistsFun();
-    }
+  async function allOnMount() {
+    if (!$isLoginStore) return;
+    await sync($userInfoStore);
+    randomFontSize = getRandom(10, 30, 10);
+    randomTop = getRandom(0, 200, 10);
+    randomleft = getRandom(-50, 300, 10);
+    randomIds = getRandom(0, $userLikedSongIdsStore.length, 10);
+    const ids = randomIds.map((i) => $userLikedSongIdsStore[i]);
+    getSongDetailFun(ids);
+    userPlaylistFun();
+    likedArtistsFun();
   }
-  //获取收藏的歌手
-  async function likedArtistsFun() {
+
+   //获取收藏的歌手
+   async function likedArtistsFun() {
     const res = await likedArtists({ limit: 6 });
     if (res.code === 200) {
       collectSongers = res.data;
     }
   }
+
   // 全部歌手
   function collectSongersFun() {
     isHomePageStore.set(false);
     push("/allCollectSongers");
   }
   //获取用户收藏歌单ID列表
-  async function userPlaylistFun(login) {
+  async function userPlaylistFun() {
     const res = await userPlaylist({ uid: $userInfoStore.account.id });
     if (res.code === 200) {
       isRefresh = false;
@@ -108,8 +99,7 @@
         res.playlist[0].creator.userId === $userInfoStore.account.id &&
         res.playlist[0].name.substr(-5) === "喜欢的音乐"
       ) {
-        userLikeListIdStore.set(res.playlist[0].id);
-        localStorage.setItem("userLikeListId", res.playlist[0].id);
+        userLikedPlaylistStore.set(res.playlist[0].id);
         res.playlist.splice(0, 1);
       }
       for (let i = 0; i < res.playlist.length; i++) {
@@ -139,11 +129,8 @@
   }
   //所有获取歌曲详情
   async function getSongDetailFun(songIds) {
+    songIds = songIds.filter(Boolean).join(",");
     isRequsetSucc = false;
-    if (songIds.slice(0, 1) === ",") {
-      songIds = songIds.substr(1);
-    }
-    songIds = songIds.replace(",,", ",");
     const res = await getSongDetail(songIds, true);
     if (res.code === 200) {
       randomList = res.songs;
@@ -198,13 +185,13 @@
     e.preventDefault();
     e.stopPropagation();
     //从喜欢的歌曲id中随机出一首开启心动模式
-    const randomLikeSongId =
-      newuserLikeSongIdsStore[
-        Math.floor(Math.random() * newuserLikeSongIdsStore.length)
-      ];
+    const randomLikeSongIndex = Math.floor(
+      Math.random() * $userLikedSongIdsStore.length
+    );
+    const randomLikeSongId = $userLikedSongIdsStore[randomLikeSongIndex];
     const res = await intelligenceList({
       id: randomLikeSongId,
-      pid: $userLikeListIdStore,
+      pid: $userLikedPlaylistStore,
     });
     if (res.code === 200) {
       getSongUrl(randomLikeSongId);
@@ -230,7 +217,7 @@
   }
   //请求歌单详情
   async function getPlaylistDetailFun() {
-    const res = await getPlaylistDetail($userLikeListIdStore); //获取歌单详情
+    const res = await getPlaylistDetail($userLikedPlaylistStore); //获取歌单详情
     if (res.code === 200) {
       let songIdList = [];
       for (let i = 0; i < res.playlist.trackIds.length; i++) {
@@ -253,7 +240,7 @@
   }
   //播放列表
   function playListFun(isHeart) {
-    isFMPlayStore.set(false);
+    isFMPlaying.set(false);
     localStorage.setItem("isFMPlay", "0");
     currentSongIndexStore.set(0);
     getSongUrlFun($currentPlayListStore[$currentSongIndexStore], isHeart);
@@ -274,7 +261,7 @@
         localStorage.setItem("currentSong", JSON.stringify(song));
         window.audioDOM.src = song.url;
         window.audioDOM.play();
-        playStatusStore.set(true);
+        isPlaying.set(true);
         isHeart
           ? playRepeatModelStore.set("heart")
           : playRepeatModelStore.set("repeat");
@@ -343,7 +330,7 @@
           <div class="love-title">
             <div class="love-title-text">
               我喜欢的音乐<span class="love-title-number"
-                >{newuserLikeSongIdsStore.length}首</span
+                >{$userLikedSongIdsStore.length}首</span
               >
             </div>
           </div>
@@ -385,7 +372,7 @@
             <div class="quick-btn-item" on:click={heartPlayFun}>
               <span
                 class:heart-beat={$playRepeatModelStore === "heart" &&
-                  $playStatusStore}
+                  $isPlaying}
               >
                 <HeartPulseFill size="24" style="vertical-align: middle" />
               </span>

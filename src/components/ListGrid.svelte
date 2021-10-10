@@ -1,27 +1,25 @@
 <script>
-  import { createEventDispatcher, onMount } from 'svelte';
-  import { ArrowRightSLine } from 'svelte-remixicon';
+  import { createEventDispatcher } from "svelte";
+  import { ArrowRightSLine } from "svelte-remixicon";
 
-  import { Tip } from './base';
-  import PlayListCover from './Album.svelte';
+  import { Tip } from "./base";
+  import Album from "./Album.svelte";
 
-  import { ripple } from '../utils/common';
-
-  export let title = '';
+  export let title = "";
   export let playList = [];
   export let isShowMore = true;
   export let isShowTip = false;
-  export let tipTextList = '';
-  export let iconText = '更多';
+  export let tipTextList = "";
+  export let iconText = "更多";
 
   const dispatch = createEventDispatcher();
-  function setTitleClick() {
-    dispatch('titleClick');
+  function onClickTitle() {
+    dispatch("titleClick");
   }
 </script>
 
 <div class="grid">
-  <div class="title" on:click={setTitleClick} >
+  <div class="title" on:click={onClickTitle}>
     <div class="title-left">{title}</div>
     {#if isShowMore}
       <div class="title-right">
@@ -39,16 +37,16 @@
   {/if}
   <slot />
   <div class="list">
-    {#each playList as play}
+    {#each playList as album}
       <div class="item">
-        <PlayListCover
-          name={play.name}
-          coverImgUrl={play.coverImgUrl}
-          id={play.id}
+        <Album
+          name={album.name}
+          coverImgUrl={album.coverImgUrl}
+          id={album.id}
           width={220}
-          playCount={play.playCount}
-          copywriter={play.copywriter ? play.copywriter : ''}
-          trackCount={play.trackCount}
+          playCount={album.playCount}
+          copywriter={album.copywriter || ""}
+          trackCount={album.trackCount}
         />
       </div>
     {/each}
