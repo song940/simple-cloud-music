@@ -81,7 +81,7 @@
   {#if hasMore}
     <div class="no-more">
       <div>
-        <embed width="40" height="40" src="/images/Ripple.svg" type="image/svg+xml" />
+        <embed width="40" height="40" src="images/Ripple.svg" type="image/svg+xml" />
       </div>
       <span class="no-more-text">😤 别急啊，在加载了...</span>
     </div>

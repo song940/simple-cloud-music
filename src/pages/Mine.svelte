@@ -359,7 +359,7 @@
                 <embed
                   width="100"
                   height="100"
-                  src="/images/Ripple.svg"
+                  src="images/Ripple.svg"
                   type="image/svg+xml"
                 />
               </span>

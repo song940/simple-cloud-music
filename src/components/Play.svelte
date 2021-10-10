@@ -562,7 +562,7 @@
               <embed
                 width="24"
                 height="24"
-                src="/images/Ripple.svg"
+                src="images/Ripple.svg"
                 type="image/svg+xml"
               />
             </span>
@@ -598,7 +598,7 @@
                 <embed
                   width="24"
                   height="24"
-                  src="/images/Ripple.svg"
+                  src="images/Ripple.svg"
                   type="image/svg+xml"
                 />
               </span>
@@ -619,7 +619,7 @@
                 <embed
                   width="24"
                   height="24"
-                  src="/images/Ripple.svg"
+                  src="images/Ripple.svg"
                   type="image/svg+xml"
                 />
               </span>
