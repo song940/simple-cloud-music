@@ -102,6 +102,6 @@ export async function userLikedArtistsFun() {
 
 export const sync = async (login) => {
   await userPlaylistAsync(login);
-  await userLikedArtistsAsync();
+  await userLikedArtistsAsync(login);
   await userLikedSongsIDsAsync(login);
 };
