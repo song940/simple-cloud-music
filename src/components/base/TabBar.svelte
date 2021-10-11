@@ -32,7 +32,7 @@
   });
 </script>
 
-<div class="secondary nav" style="bottom: {$isHomePageStore ? '0px' : 'calc(-55px - env(safe-area-inset-bottom))'};">
+<div class="secondary nav container" style="bottom: {$isHomePageStore ? '0px' : 'calc(-55px - env(safe-area-inset-bottom))'};">
   {#each navDatas as navData, i}
     <div
       class="nav-item"

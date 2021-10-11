@@ -44,7 +44,7 @@
 </script>
 
 <div
-  class="nav secondary"
+  class="nav secondary container"
   style="background-color:rgba(255, 255, 255, {transparent ? alphaNumber : 1})"
   class:transparent
   class:fixed={transparent ? true : fixed}

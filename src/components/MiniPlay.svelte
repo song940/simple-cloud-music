@@ -188,7 +188,7 @@
 </script>
 
 <div
-  class="play secondary"
+  class="play secondary container "
   style="bottom: {$isHomePageStore ? 56 : 0}px"
   on:touchstart={touchStart}
   on:touchend={touchEnd}
