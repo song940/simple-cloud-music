@@ -1,60 +1,71 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,viewport-fit=cover,user-scalable=no"
-    />
-    <meta name="msapplication-tap-highlight" content="no" />
-    <meta name="description" content="Music" data-rh="true">
-    <meta name="screen-orientation" content="portrait" />
-    <meta name="msapplication-TitleColor" content="#fff" />
 
-    <title>Music</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,viewport-fit=cover,user-scalable=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="description" content="Music" data-rh="true">
+  <meta name="screen-orientation" content="portrait" />
+  <meta name="msapplication-TitleColor" content="#fff" />
 
-    <link rel="manifest" href="manifest.json" />
-    <meta name="description" content="Svelte PWA starter template" />
-    <meta name="theme-color" content="#ffffff" />
+  <title>Music</title>
 
-    <meta name="apple-mobile-web-app-title" content="Music" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- <meta name="apple-mobile-web-app-status-bar-style" content="#ffffff" /> -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="description" content="Svelte PWA starter template" />
+  <meta name="theme-color" content="#fa233b">
 
-    <link rel="apple-touch-icon" sizes="48x48" href="images/icons/48x48.png" />
-    <link rel="apple-touch-icon" sizes="64x64" href="images/icons/64x64.png" />
-    <link rel="apple-touch-icon" sizes="128x128" href="images/icons/128x128.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="images/icons/192x192.png" />
-    <link rel="apple-touch-icon" sizes="256x256" href="images/icons/256x256.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="images/icons/512x512.png" />
+  <meta name="apple-mobile-web-app-title" content="Music" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <!-- <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="#fa233b" />
 
-    <link rel="icon" type="image/png" href="favicon.ico" />
+  <link rel="apple-touch-icon" sizes="48x48" href="images/icons/48x48.png" />
+  <link rel="apple-touch-icon" sizes="64x64" href="images/icons/64x64.png" />
+  <link rel="apple-touch-icon" sizes="128x128" href="images/icons/128x128.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="images/icons/192x192.png" />
+  <link rel="apple-touch-icon" sizes="256x256" href="images/icons/256x256.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="images/icons/512x512.png" />
 
-    <link rel="stylesheet" href="global.css" />
-    <link rel="stylesheet" href="normalize.css" />
-    <link rel="stylesheet" href="theme.css" />
-    <link rel="stylesheet" href="markdown.css" />
-    <link rel="stylesheet" href="build/bundle.css" />
+  <link rel="icon" type="image/png" href="favicon.ico" />
 
-    <!-- You can remove this is you don't want to make your PWA installable -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
-    <script defer src="build/bundle.js"></script>
-  </head>
+  <link rel="stylesheet" href="global.css" />
+  <link rel="stylesheet" href="normalize.css" />
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="markdown.css" />
+  <link rel="stylesheet" href="build/bundle.css" />
 
-  <body>
-    <noscript>
-      <div>Oops! Javascript required here! Allow it and try again!</div>
-    </noscript>
-
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker.register("service-worker.js").then(reg => {
-            console.log("Service worker registered.", reg);
-          });
-        });
+  <!-- You can remove this is you don't want to make your PWA installable -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
+  <script defer src="build/bundle.js"></script>
+  <style>
+    .container {
+      width: 500px !important;
+      margin: auto;
+    }
+    @media screen and (max-width: 768px) {
+      .container {
+        width: 100% !important;
       }
-    </script>
-  </body>
+    }
+  </style>
+</head>
+
+<body class="container" >
+  <noscript>
+    <div>Oops! Javascript required here! Allow it and try again!</div>
+  </noscript>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("service-worker.js").then(reg => {
+          console.log("Service worker registered.", reg);
+        });
+      });
+    }
+  </script>
+</body>
+
 </html>
